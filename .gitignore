@@ -110,6 +110,7 @@ celerybeat.pid
 *.sage.py
 
 # Environments
+.virtenv
 .env
 .venv
 env/
@@ -143,6 +144,7 @@ dmypy.json
 cython_debug/
 
 ### VisualStudioCode ###
+.vscode
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
