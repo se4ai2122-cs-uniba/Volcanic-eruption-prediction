@@ -1,0 +1,9 @@
+#    - "LGBMRegressor1"
+#    - "LGBMRegressor2"
+#    - "PipeLGB"
+#    - "XGBoost"
+#    - "XGBoostShort"
+#    - "NN"
+train:
+  algorithm: "LGBMRegressor1"
+  

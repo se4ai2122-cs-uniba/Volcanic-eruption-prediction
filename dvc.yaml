@@ -1,0 +1,38 @@
+stages:
+  prepare:
+    cmd: python src/prepare.py
+    deps:
+    - data/raw/sample_submission.csv
+    - data/raw/test
+    - data/raw/train
+    - data/raw/train.csv
+    - src/prepare.py
+    outs:
+    - data/processed/processed_test_set.csv
+    - data/processed/processed_training_set.csv
+    - data/processed/processed_validation_set.csv
+    - data/processed/y_train.csv
+    - data/processed/y_validation.csv
+  train:
+    cmd: python src/train.py
+    deps:
+    - data/processed/processed_test_set.csv
+    - data/processed/processed_training_set.csv
+    - data/processed/processed_validation_set.csv
+    - data/processed/y_train.csv
+    - data/processed/y_validation.csv
+    - src/train.py
+    params:
+    - train.algorithm
+    outs:
+    - models/model.pkl
+  evaluate:
+    cmd: python src/evaluate.py
+    deps:
+    - data/processed/processed_validation_set.csv
+    - data/processed/y_validation.csv
+    - models/model.pkl
+    - src/evaluate.py
+    metrics:
+    - metrics/scores.json:
+        cache: false

@@ -1,0 +1,85 @@
+schema: '2.0'
+stages:
+  prepare:
+    cmd: python src/prepare.py
+    deps:
+    - path: data/raw/sample_submission.csv
+      md5: 220efd259a5a7486030f9601d927a1bd
+      size: 56411
+    - path: data/raw/test
+      md5: dca437b9d7a0fb82f6cdd2462193c85a.dir
+      size: 15285014532
+      nfiles: 4520
+    - path: data/raw/train
+      md5: a5425c6de2684821f60d30c09e2ad5cb.dir
+      size: 15963149469
+      nfiles: 4431
+    - path: data/raw/train.csv
+      md5: 924dc0b94aa426aa89ab0da8284de6be
+      size: 85262
+    - path: src/prepare.py
+      md5: a157dfdb2e7f67aa8c4db67751ec7f23
+      size: 9746
+    outs:
+    - path: data/processed/processed_test_set.csv
+      md5: ef8b733d8c1535337c4935469d560c07
+      size: 11586724
+    - path: data/processed/processed_training_set.csv
+      md5: 64e1c62755d34332ef0b40c8bf093d55
+      size: 9613956
+    - path: data/processed/processed_validation_set.csv
+      md5: d72d53de2d5a9663e0b87ef38e094a77
+      size: 2410336
+    - path: data/processed/y_train.csv
+      md5: 21f98039a92b4427cbfd33021e0bfa5b
+      size: 34559
+    - path: data/processed/y_validation.csv
+      md5: 8a4166408241f1fb1b60e6cffc9c42ff
+      size: 8669
+  train:
+    cmd: python src/train.py
+    deps:
+    - path: data/processed/processed_test_set.csv
+      md5: ef8b733d8c1535337c4935469d560c07
+      size: 11586724
+    - path: data/processed/processed_training_set.csv
+      md5: 64e1c62755d34332ef0b40c8bf093d55
+      size: 9613956
+    - path: data/processed/processed_validation_set.csv
+      md5: d72d53de2d5a9663e0b87ef38e094a77
+      size: 2410336
+    - path: data/processed/y_train.csv
+      md5: 21f98039a92b4427cbfd33021e0bfa5b
+      size: 34559
+    - path: data/processed/y_validation.csv
+      md5: 8a4166408241f1fb1b60e6cffc9c42ff
+      size: 8669
+    - path: src/train.py
+      md5: 028ac934cab437793abb5e20830acbd0
+      size: 5859
+    params:
+      params.yaml:
+        train.algorithm: LGBMRegressor1
+    outs:
+    - path: models/model.pkl
+      md5: 6878f5412daea54bfbb00b36ab15ac92
+      size: 651911
+  evaluate:
+    cmd: python src/evaluate.py
+    deps:
+    - path: data/processed/processed_validation_set.csv
+      md5: d72d53de2d5a9663e0b87ef38e094a77
+      size: 2410336
+    - path: data/processed/y_validation.csv
+      md5: 8a4166408241f1fb1b60e6cffc9c42ff
+      size: 8669
+    - path: models/model.pkl
+      md5: 6878f5412daea54bfbb00b36ab15ac92
+      size: 651911
+    - path: src/evaluate.py
+      md5: 996b57daad3f04300509e8d6c162dcd3
+      size: 1216
+    outs:
+    - path: metrics/scores.json
+      md5: e76d6ca6c06009cde2503aa082ad3a87
+      size: 36
