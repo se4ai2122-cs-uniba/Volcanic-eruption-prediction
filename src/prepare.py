@@ -22,6 +22,9 @@ y_val_path = processed_dataset_path + separator + 'y_validation.csv'
 proc_test_set_path = processed_dataset_path + separator + 'processed_test_set.csv'
 params_path = os.path.join(cur_dir, 'params.yaml')
 
+if not os.path.isdir(processed_dataset_path):
+        os.makedirs(processed_dataset_path)
+
 # Read data preparation parameters
 with open(params_path, "r") as params_file:
     try:

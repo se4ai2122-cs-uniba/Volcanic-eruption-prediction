@@ -1,0 +1,57 @@
+schema: '2.0'
+stages:
+  prepare:
+    cmd: python src/prepare.py
+    deps:
+    - path: data/raw/predict-volcanic-eruptions_dataset
+      md5: e02ae965a33767759c3de22faa1023dc.dir
+      size: 31248305674
+      nfiles: 8953
+    - path: src/prepare.py
+      md5: ac865da4002e12a5c8664c12515cfb52
+      size: 11707
+    params:
+      params.yaml:
+        prepare.random_state: 42
+        prepare.test_size: 0.2
+        prepare.train_size: 0.8
+    outs:
+    - path: data/processed
+      md5: c478b5ad977e224c1cdab340148066f5.dir
+      size: 9480669
+      nfiles: 5
+  train:
+    cmd: python src/train.py
+    deps:
+    - path: data/processed/processed_training_set.csv
+      md5: e9dc66a04e537c1763473326a99a7890
+      size: 3863333
+    - path: data/processed/y_train.csv
+      md5: c7d68c80c2c49d622e44bf9743f0fac3
+      size: 34557
+    - path: src/train.py
+      md5: 0b6e973669cebe05319c9277e636b82c
+      size: 4276
+    params:
+      params.yaml:
+        train:
+          algorithm: LGBMRegressor
+          min_data_in_leaf: 13
+          bagging_fraction: 0.020521665677937423
+          feature_fraction: 0.15776459974779927
+          num_leaves: 29
+          min_child_samples: 507
+          gamma: 0.6154687206061559
+          dropout: 0.6
+          patience: 10
+          epochs: 40
+          batch_size: 128
+          random_state: 42
+          n_estimators: 289
+          max_depth: 8
+          learning_rate: 0.001
+    outs:
+    - path: models
+      md5: fcbf6a4d107e431af4b151bfeffb84d7.dir
+      size: 778123
+      nfiles: 1
