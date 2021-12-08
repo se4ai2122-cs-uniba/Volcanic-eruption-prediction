@@ -30,12 +30,12 @@ stages:
       md5: c7d68c80c2c49d622e44bf9743f0fac3
       size: 34557
     - path: src/train.py
-      md5: 0b6e973669cebe05319c9277e636b82c
-      size: 4276
+      md5: 9e705cd77a88af62050580734f00e7bf
+      size: 4299
     params:
       params.yaml:
         train:
-          algorithm: LGBMRegressor
+          algorithm: Neural_Network
           min_data_in_leaf: 13
           bagging_fraction: 0.020521665677937423
           feature_fraction: 0.15776459974779927
@@ -52,6 +52,26 @@ stages:
           learning_rate: 0.001
     outs:
     - path: models
-      md5: fcbf6a4d107e431af4b151bfeffb84d7.dir
-      size: 778123
+      md5: 3cb4a6f23230a71fb0c99872a0aa4ae0.dir
+      size: 1004792
       nfiles: 1
+  evaluate:
+    cmd: python src/evaluate.py
+    deps:
+    - path: data/processed/processed_validation_set.csv
+      md5: 4a94597c5ab74b67f75265b1072637c0
+      size: 968294
+    - path: data/processed/y_validation.csv
+      md5: ea7642467b641e95a1262f643140956c
+      size: 8671
+    - path: models
+      md5: 3cb4a6f23230a71fb0c99872a0aa4ae0.dir
+      size: 1004792
+      nfiles: 1
+    - path: src/evaluate.py
+      md5: a04bd434afb10c6ce99247aa8168e230
+      size: 2961
+    outs:
+    - path: metrics/scores.json
+      md5: 5d765c8877c344e63f1f3a9f817dd7cd
+      size: 140

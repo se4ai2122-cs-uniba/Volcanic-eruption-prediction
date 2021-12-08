@@ -31,8 +31,10 @@ with open(params_path, "r") as params_file:
     except yaml.YAMLError as exc:
         print(exc)
 
-#save the model as a pickle file
-Path("models").mkdir(exist_ok=True)
+# Path to the models folder
+if not Path.exists(Path("models")):
+  Path("models").mkdir()
+
 output_folder_path = Path("models")
 
 

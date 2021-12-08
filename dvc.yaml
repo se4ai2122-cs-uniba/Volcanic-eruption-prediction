@@ -20,3 +20,13 @@ stages:
     - train
     outs:
     - models
+  evaluate:
+    cmd: python src/evaluate.py
+    deps:
+    - data/processed/processed_validation_set.csv
+    - data/processed/y_validation.csv
+    - models
+    - src/evaluate.py
+    metrics:
+    - metrics/scores.json:
+        cache: false

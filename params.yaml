@@ -3,7 +3,7 @@ prepare:
   test_size: 0.2
   random_state: 42
 train:
-  algorithm: "LGBMRegressor"                 # "XGBRegressor", "LGBMRegressor", "Neural_Network"                      
+  algorithm: "Neural_Network"                 # "XGBRegressor", "LGBMRegressor", "Neural_Network"                      
   
   # lgb
   min_data_in_leaf: 13                        
