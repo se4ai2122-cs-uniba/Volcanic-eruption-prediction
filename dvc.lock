@@ -35,22 +35,22 @@ stages:
     params:
       params.yaml:
         train:
-          algorithm: Neural_Network
+          algorithm: XGBRegressor
           num_leaves: 29
-          gamma: 0.6154687206061559
+          gamma: 0.788
           dropout: 0.6
           patience: 10
-          epochs: 40
-          batch_size: 128
+          epochs: 1000
+          batch_size: 512
           activation: relu
           random_state: 42
-          n_estimators: 289
-          max_depth: 8
-          learning_rate: 0.001
+          n_estimators: 189
+          max_depth: 6
+          learning_rate: 0.1
     outs:
     - path: models
-      md5: 7feab648a11c1964aa79d1b4e22081b9.dir
-      size: 1004792
+      md5: 829903e06650c85c5d5b414c07338a24.dir
+      size: 1477689
       nfiles: 1
   evaluate:
     cmd: python src/evaluate.py
@@ -62,13 +62,13 @@ stages:
       md5: ea7642467b641e95a1262f643140956c
       size: 8671
     - path: models
-      md5: 7feab648a11c1964aa79d1b4e22081b9.dir
-      size: 1004792
+      md5: 829903e06650c85c5d5b414c07338a24.dir
+      size: 1477689
       nfiles: 1
     - path: src/evaluate.py
       md5: 54459e50887a9fdbaa094d3e8ef8bfb6
       size: 1975
     outs:
     - path: metrics/scores.json
-      md5: 07d56d0fc77469fda84101459de1ea33
-      size: 36
+      md5: 3f286be2b994cea23b06a3854d8e3110
+      size: 35
