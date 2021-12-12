@@ -5,12 +5,8 @@ prepare:
 train:
   algorithm: "Neural_Network"                 # "XGBRegressor", "LGBMRegressor", "Neural_Network"                      
   
-  # lgb
-  min_data_in_leaf: 13                        
-  bagging_fraction: 0.020521665677937423       
-  feature_fraction: 0.15776459974779927       
-  num_leaves: 29
-  min_child_samples: 507                      
+  # lgb     
+  num_leaves: 29                      
 
   # xgb
   gamma: 0.6154687206061559                   
@@ -19,7 +15,8 @@ train:
   dropout: 0.6                                
   patience: 10                                
   epochs: 40                                
-  batch_size: 128  
+  batch_size: 128
+  activation: "relu"  
   
   # lgb, xgb
   random_state: 42                            

@@ -47,11 +47,7 @@ def create_LGBMRegressor_model():
         'num_leaves': params["num_leaves"],
         'n_estimators': params["n_estimators"],
         'max_depth': params["max_depth"],
-        'min_child_samples': params["min_child_samples"],
         'learning_rate': params["learning_rate"],
-        'min_data_in_leaf': params["min_data_in_leaf"],
-        'bagging_fraction': params["bagging_fraction"],      #randomly select part of data without resampling, can speed up training and deal with over-fitting 
-        'feature_fraction': params["feature_fraction"],       #randomly select a subset of features on each iteration(es. 0.8= 80%), can speed up training and deal with over-fitting
         'random_state': params["random_state"]
     }
     model = LGBMRegressor(**lgbm_params)
@@ -91,10 +87,10 @@ def define_NN_architecture():
     model = tf.keras.Sequential([
         tf.keras.layers.Input((75,)),         #num of features in the training set
         tf.keras.layers.BatchNormalization(),
-        tf.keras.layers.Dense(1000, activation="relu"),
+        tf.keras.layers.Dense(1000, activation=params["activation"]),
         tf.keras.layers.BatchNormalization(),
         tf.keras.layers.Dropout(params["dropout"]),
-        tf.keras.layers.Dense(1, activation='relu')
+        tf.keras.layers.Dense(1, activation=params["activation"])
     ])
     
     model.compile(

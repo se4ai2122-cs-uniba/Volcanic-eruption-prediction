@@ -30,29 +30,26 @@ stages:
       md5: c7d68c80c2c49d622e44bf9743f0fac3
       size: 34557
     - path: src/train.py
-      md5: 9e705cd77a88af62050580734f00e7bf
-      size: 4299
+      md5: 842cfd5c34e0bcc87fa41fa0deba6efb
+      size: 3866
     params:
       params.yaml:
         train:
           algorithm: Neural_Network
-          min_data_in_leaf: 13
-          bagging_fraction: 0.020521665677937423
-          feature_fraction: 0.15776459974779927
           num_leaves: 29
-          min_child_samples: 507
           gamma: 0.6154687206061559
           dropout: 0.6
           patience: 10
           epochs: 40
           batch_size: 128
+          activation: relu
           random_state: 42
           n_estimators: 289
           max_depth: 8
           learning_rate: 0.001
     outs:
     - path: models
-      md5: 3cb4a6f23230a71fb0c99872a0aa4ae0.dir
+      md5: 7feab648a11c1964aa79d1b4e22081b9.dir
       size: 1004792
       nfiles: 1
   evaluate:
@@ -65,13 +62,13 @@ stages:
       md5: ea7642467b641e95a1262f643140956c
       size: 8671
     - path: models
-      md5: 3cb4a6f23230a71fb0c99872a0aa4ae0.dir
+      md5: 7feab648a11c1964aa79d1b4e22081b9.dir
       size: 1004792
       nfiles: 1
     - path: src/evaluate.py
-      md5: a04bd434afb10c6ce99247aa8168e230
-      size: 2961
+      md5: 54459e50887a9fdbaa094d3e8ef8bfb6
+      size: 1975
     outs:
     - path: metrics/scores.json
-      md5: 5d765c8877c344e63f1f3a9f817dd7cd
-      size: 140
+      md5: 07d56d0fc77469fda84101459de1ea33
+      size: 36

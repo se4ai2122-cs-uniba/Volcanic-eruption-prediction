@@ -22,15 +22,6 @@ model_folder_path = Path("models")
 metrics_folder_path = Path("metrics")
 scores_file_path = metrics_folder_path / "scores.json"
 
-first_time_opening= False
-if not Path.exists(metrics_folder_path):
-  metrics_folder_path.mkdir()
-  open(scores_file_path, "x")
-  first_time_opening= True
-elif not Path.exists(scores_file_path):
-   open(scores_file_path, "x")
-   first_time_opening= True
-
 # Read data preparation parameters
 with open(params_path, "r") as params_file:
     try:
@@ -68,25 +59,7 @@ if current_algorithm == "Neural_Network":
 val_rmse= rmse(y_val, preds)
 print(f'RMSE {current_algorithm}:', val_rmse)
 
-# Write RMSE of the current model to file
-if first_time_opening:
-    algorithms = ["XGBRegressor", "LGBMRegressor", "Neural_Network"]
-    algorithms.remove(current_algorithm)
-
-    # Write RMSE to file for the first time
-    with open(scores_file_path, "w") as scores_file:
-        json.dump(
-            {f'RMSE {current_algorithm}': val_rmse, f'RMSE {algorithms[0]}': 'not calculated',f'RMSE {algorithms[1]}': 'not calculated' },
-            scores_file,
-            indent=4,
-        )
-else:                  # Updte the RMSE only of the algorithm currently evaluated
-    with open(scores_file_path, "r") as scores_file:
-        data = json.load(scores_file)
-
-    data[f'RMSE {current_algorithm}'] = val_rmse
-
-    with open(scores_file_path, "w") as scores_file:
-        json.dump(data, scores_file, indent=4)
+with open(scores_file_path, "w") as scores_file:
+    json.dump( {"RMSE": val_rmse}, scores_file, indent=4)
 
 print("Evaluation completed.")

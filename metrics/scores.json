@@ -1,5 +1,3 @@
 {
-    "RMSE Neural_Network": 18239931.731543176,
-    "RMSE XGBRegressor": "not calculated",
-    "RMSE LGBMRegressor": "not calculated"
+    "RMSE": 16610327.292409666
 }
