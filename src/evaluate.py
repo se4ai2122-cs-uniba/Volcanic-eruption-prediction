@@ -1,9 +1,16 @@
 import pickle
 import math
+import numpy as np
 import pandas as pd
+import ruamel.yaml as yaml
 from pathlib import Path
 from sklearn.metrics import mean_squared_error as mse
 import json
+from tensorflow import keras
+
+
+# Path of the parameters file
+params_path = Path("params.yaml")
 
 # Path to the prepared data folder
 input_folder_path = Path("data/processed")
@@ -12,8 +19,16 @@ input_folder_path = Path("data/processed")
 model_folder_path = Path("models")
 
 # Path to the metrics folder
-Path("metrics").mkdir(exist_ok=True)
 metrics_folder_path = Path("metrics")
+scores_file_path = metrics_folder_path / "scores.json"
+
+# Read data preparation parameters
+with open(params_path, "r") as params_file:
+    try:
+        params = yaml.safe_load(params_file)
+        current_algorithm = params["train"]["algorithm"]
+    except yaml.YAMLError as exc:
+        print(exc)
 
 # Read validation dataset
 y_val = pd.read_csv(input_folder_path / "y_validation.csv")
@@ -26,23 +41,25 @@ def rmse(y_true, y_pred):
 # MODEL EVALUATION #
 # ================ #
 
-# Load the model
-with open(model_folder_path / "model.pkl", "rb") as pickled_model:
-    model = pickle.load(pickled_model)
+if current_algorithm == "Neural_Network":
+    file_name= current_algorithm + '.h5'
+    model = keras.models.load_model(model_folder_path / file_name, compile=False)  #compile=False to not search for the loss function as it is only needed for compiling the model
+else:
+    file_name= current_algorithm + '.pkl'
+    with open(model_folder_path / file_name, "rb") as pickled_model:
+        model = pickle.load(pickled_model)
 
 # Compute predictions using the model
 preds = model.predict(val)
 
+if current_algorithm == "Neural_Network":
+   preds = np.expm1(preds)                    
+
 # Compute the RMSE value for the model
 val_rmse= rmse(y_val, preds)
-print('RMSE: ', val_rmse)
+print(f'RMSE {current_algorithm}:', val_rmse)
 
-# Write RMSE to file
-with open(metrics_folder_path / "scores.json", "w") as scores_file:
-    json.dump(
-        {"RMSE": val_rmse},
-        scores_file,
-        indent=4,
-    )
+with open(scores_file_path, "w") as scores_file:
+    json.dump( {"RMSE": val_rmse}, scores_file, indent=4)
 
 print("Evaluation completed.")

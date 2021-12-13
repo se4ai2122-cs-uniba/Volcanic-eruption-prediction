@@ -3,83 +3,72 @@ stages:
   prepare:
     cmd: python src/prepare.py
     deps:
-    - path: data/raw/sample_submission.csv
-      md5: 220efd259a5a7486030f9601d927a1bd
-      size: 56411
-    - path: data/raw/test
-      md5: dca437b9d7a0fb82f6cdd2462193c85a.dir
-      size: 15285014532
-      nfiles: 4520
-    - path: data/raw/train
-      md5: a5425c6de2684821f60d30c09e2ad5cb.dir
-      size: 15963149469
-      nfiles: 4431
-    - path: data/raw/train.csv
-      md5: 924dc0b94aa426aa89ab0da8284de6be
-      size: 85262
+    - path: data/raw/predict-volcanic-eruptions_dataset
+      md5: e02ae965a33767759c3de22faa1023dc.dir
+      size: 31248305674
+      nfiles: 8953
     - path: src/prepare.py
-      md5: a157dfdb2e7f67aa8c4db67751ec7f23
-      size: 9746
+      md5: ac865da4002e12a5c8664c12515cfb52
+      size: 11707
+    params:
+      params.yaml:
+        prepare.random_state: 42
+        prepare.test_size: 0.2
+        prepare.train_size: 0.8
     outs:
-    - path: data/processed/processed_test_set.csv
-      md5: ef8b733d8c1535337c4935469d560c07
-      size: 11586724
-    - path: data/processed/processed_training_set.csv
-      md5: 64e1c62755d34332ef0b40c8bf093d55
-      size: 9613956
-    - path: data/processed/processed_validation_set.csv
-      md5: d72d53de2d5a9663e0b87ef38e094a77
-      size: 2410336
-    - path: data/processed/y_train.csv
-      md5: 21f98039a92b4427cbfd33021e0bfa5b
-      size: 34559
-    - path: data/processed/y_validation.csv
-      md5: 8a4166408241f1fb1b60e6cffc9c42ff
-      size: 8669
+    - path: data/processed
+      md5: c478b5ad977e224c1cdab340148066f5.dir
+      size: 9480669
+      nfiles: 5
   train:
     cmd: python src/train.py
     deps:
-    - path: data/processed/processed_test_set.csv
-      md5: ef8b733d8c1535337c4935469d560c07
-      size: 11586724
     - path: data/processed/processed_training_set.csv
-      md5: 64e1c62755d34332ef0b40c8bf093d55
-      size: 9613956
-    - path: data/processed/processed_validation_set.csv
-      md5: d72d53de2d5a9663e0b87ef38e094a77
-      size: 2410336
+      md5: e9dc66a04e537c1763473326a99a7890
+      size: 3863333
     - path: data/processed/y_train.csv
-      md5: 21f98039a92b4427cbfd33021e0bfa5b
-      size: 34559
-    - path: data/processed/y_validation.csv
-      md5: 8a4166408241f1fb1b60e6cffc9c42ff
-      size: 8669
+      md5: c7d68c80c2c49d622e44bf9743f0fac3
+      size: 34557
     - path: src/train.py
-      md5: 028ac934cab437793abb5e20830acbd0
-      size: 5859
+      md5: 842cfd5c34e0bcc87fa41fa0deba6efb
+      size: 3866
     params:
       params.yaml:
-        train.algorithm: LGBMRegressor1
+        train:
+          algorithm: XGBRegressor
+          num_leaves: 29
+          gamma: 0.788
+          dropout: 0.6
+          patience: 10
+          epochs: 1000
+          batch_size: 512
+          activation: relu
+          random_state: 42
+          n_estimators: 189
+          max_depth: 6
+          learning_rate: 0.1
     outs:
-    - path: models/model.pkl
-      md5: 6878f5412daea54bfbb00b36ab15ac92
-      size: 651911
+    - path: models
+      md5: 829903e06650c85c5d5b414c07338a24.dir
+      size: 1477689
+      nfiles: 1
   evaluate:
     cmd: python src/evaluate.py
     deps:
     - path: data/processed/processed_validation_set.csv
-      md5: d72d53de2d5a9663e0b87ef38e094a77
-      size: 2410336
+      md5: 4a94597c5ab74b67f75265b1072637c0
+      size: 968294
     - path: data/processed/y_validation.csv
-      md5: 8a4166408241f1fb1b60e6cffc9c42ff
-      size: 8669
-    - path: models/model.pkl
-      md5: 6878f5412daea54bfbb00b36ab15ac92
-      size: 651911
+      md5: ea7642467b641e95a1262f643140956c
+      size: 8671
+    - path: models
+      md5: 829903e06650c85c5d5b414c07338a24.dir
+      size: 1477689
+      nfiles: 1
     - path: src/evaluate.py
-      md5: 996b57daad3f04300509e8d6c162dcd3
-      size: 1216
+      md5: 54459e50887a9fdbaa094d3e8ef8bfb6
+      size: 1975
     outs:
     - path: metrics/scores.json
-      md5: e76d6ca6c06009cde2503aa082ad3a87
-      size: 36
+      md5: 3f286be2b994cea23b06a3854d8e3110
+      size: 35
