@@ -115,7 +115,7 @@ missing_sensors_test = pd.DataFrame(
 
 
 #create the training set csv
- 
+
 def build_features(signal, ts, sensor_id):       #signal=colonna di un csv, ts=nome csv. Calcola delle statistiche per ogni colonna di ogni csv, cioè per le rilevazioni di ogni sensore
     X = pd.DataFrame()
     f = np.fft.fft(signal)  #compute the Discrete Fourier Transform of a sequence. It converts a space or time signal to signal of the frequency domain
@@ -166,6 +166,7 @@ train_set = train_set.reset_index() #reset index of the dataframe object to defa
 train_set = train_set.rename(columns={'index': 'segment_id'})
 train_set = pd.merge(train_set, train, on='segment_id')
 
+
 """crea dataset con features più significative, 75 invece di 243"""
 drop_cols = list()
 for col in train_set.columns:     #scarta le colonne con poca correlazione con la colonna target
@@ -188,7 +189,6 @@ for col1 in train_set.columns:
             if col2 not in drop_cols and col1 not in not_to_drop_cols:
                 drop_cols.append(col2)
                 not_to_drop_cols.append(col1)
-
 
 train = train_set.drop(['segment_id', 'time_to_eruption'], axis=1)
 y_train = train_set['time_to_eruption']
