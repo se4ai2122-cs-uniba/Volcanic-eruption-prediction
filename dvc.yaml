@@ -30,3 +30,5 @@ stages:
     metrics:
     - metrics/scores.json:
         cache: false
+    params:
+    - evaluate

@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import glob
 import os
-import ruamel.yaml as yaml
+import yaml
 from sklearn.model_selection import train_test_split
 
 separator = os.sep
@@ -185,7 +185,7 @@ for col1 in train_set.columns:
             continue
         if col1 == 'time_to_eruption' or col2 == 'time_to_eruption':
             continue
-        if abs(train_set[col1].corr(train_set[col2])) > 0.98:          #scarta una tra due colonne correllate tra loro più del 98%
+        if abs(train_set[col1].corr(train_set[col2])) > 0.98:          #scarta una tra due colonne correlate tra loro più del 98%
             if col2 not in drop_cols and col1 not in not_to_drop_cols:
                 drop_cols.append(col2)
                 not_to_drop_cols.append(col1)
@@ -211,20 +211,6 @@ reduced_y.to_csv(y_train_path, index=False)
 
 print("Writing file {} to disk.".format(y_val_path))
 reduced_y_val.to_csv(y_val_path, index=False)
-
-# train, val, y_train, y_val = train_test_split(train, y_train, train_size=params["train_size"], test_size=params["test_size"], random_state=params["random_state"]) #random_state sets a seed to the random generator, so that train-test splits are always deterministic.It's for reproducibility. If you don't set a seed, it is different each time
-
-# print("Writing file {} to disk.".format(processed_training_set_path))
-# train.to_csv(processed_training_set_path, index=False)
-
-# print("Writing file {} to disk.".format(processed_val_set_path))
-# val.to_csv(processed_val_set_path, index=False)
-
-# print("Writing file {} to disk.".format(y_train_path))
-# y_train.to_csv(y_train_path, index=False)
-
-# print("Writing file {} to disk.".format(y_val_path))
-# y_val.to_csv(y_val_path, index=False)
 
 test_set = list()
 j=0

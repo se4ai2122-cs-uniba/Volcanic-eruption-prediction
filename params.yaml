@@ -3,7 +3,7 @@ prepare:
   test_size: 0.2
   random_state: 42
 train:
-  algorithm: XGBRegressor                     # "XGBRegressor", "LGBMRegressor", "Neural_Network"                      
+  algorithm: all                     # all, "XGBRegressor", "LGBMRegressor", "Neural_Network"                      
   # lgb     
   num_leaves: 29
 
@@ -12,7 +12,7 @@ train:
 
   # NN
   dropout: 0.6
-  patience: 10
+  patience: 20
   epochs: 1000
   batch_size: 512
   activation: relu
@@ -23,4 +23,7 @@ train:
   max_depth: 6
 
   # lgb, xgb, NN
-  learning_rate: 0.1
+  learning_rate: 0.01
+
+evaluate:
+  algorithm: XGBRegressor                     #"XGBRegressor", "LGBMRegressor", "Neural_Network"
