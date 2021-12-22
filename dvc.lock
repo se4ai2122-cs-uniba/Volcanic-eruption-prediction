@@ -8,8 +8,8 @@ stages:
       size: 31248305674
       nfiles: 8953
     - path: src/prepare.py
-      md5: ac865da4002e12a5c8664c12515cfb52
-      size: 11707
+      md5: 9b48610d870854b9a5e8d4d61519e630
+      size: 11138
     params:
       params.yaml:
         prepare.random_state: 42
@@ -30,28 +30,28 @@ stages:
       md5: c7d68c80c2c49d622e44bf9743f0fac3
       size: 34557
     - path: src/train.py
-      md5: 842cfd5c34e0bcc87fa41fa0deba6efb
-      size: 3866
+      md5: be9dae5e80ae2138c2571564dc0a94bf
+      size: 5583
     params:
       params.yaml:
         train:
-          algorithm: XGBRegressor
+          algorithm: all
           num_leaves: 29
           gamma: 0.788
           dropout: 0.6
-          patience: 10
+          patience: 20
           epochs: 1000
           batch_size: 512
           activation: relu
           random_state: 42
           n_estimators: 189
           max_depth: 6
-          learning_rate: 0.1
+          learning_rate: 0.01
     outs:
     - path: models
-      md5: 829903e06650c85c5d5b414c07338a24.dir
-      size: 1477689
-      nfiles: 1
+      md5: d82a9d52fa3bb9649d0584e2a4a6d7c4.dir
+      size: 2598745
+      nfiles: 4
   evaluate:
     cmd: python src/evaluate.py
     deps:
@@ -62,13 +62,17 @@ stages:
       md5: ea7642467b641e95a1262f643140956c
       size: 8671
     - path: models
-      md5: 829903e06650c85c5d5b414c07338a24.dir
-      size: 1477689
-      nfiles: 1
+      md5: d82a9d52fa3bb9649d0584e2a4a6d7c4.dir
+      size: 2598745
+      nfiles: 4
     - path: src/evaluate.py
-      md5: 54459e50887a9fdbaa094d3e8ef8bfb6
-      size: 1975
+      md5: eba69cb848604b6676e38268430d28cc
+      size: 1986
+    params:
+      params.yaml:
+        evaluate:
+          algorithm: XGBRegressor
     outs:
     - path: metrics/scores.json
-      md5: 3f286be2b994cea23b06a3854d8e3110
+      md5: 2f3684f510f54e80fb13ab1c85979c8f
       size: 35
