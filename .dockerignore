@@ -1,0 +1,10 @@
+# Ignore everything
+**
+
+# Allow these directories and files
+!src/
+!app/
+!data/processed
+!models/
+!requirements.txt
+!params.yaml
