@@ -7,7 +7,9 @@ from pathlib import Path
 from typing import List
 import pandas as pd
 from tensorflow import keras
-from fastapi import FastAPI, File, UploadFile, Request
+from fastapi import FastAPI, File, UploadFile, Request, HTTPException
+from .schemas import TimeToErupt
+from pydantic import ValidationError
 
 MODELS_DIR = Path("models")
 model_wrappers_list: List[dict] = []
@@ -97,15 +99,21 @@ def _get_models_list(request: Request):
 @app.post("/models/{type}", tags=["Prediction"])
 @construct_response
 def _predict(request: Request, type: str, file: UploadFile = File(..., description="csv with sensors detections")):
-    #file contiene il file passato dall'utente
+    checked_csv = check_input_file(file)    #validate the type of the input file and the number and types of its columns
+    processed_row= process_input_file(checked_csv) #il csv in input viene trasformato nella riga su cui predire
     model_wrapper = next((m for m in model_wrappers_list if m["type"] == type), None)   
-    processed_row= process_input_file(file.file) #il csv in input viene trasformato nella riga su cui predire
     if model_wrapper:
         if model_wrapper["type"] == "Neural Network":
             prediction = secToDays( np.expm1(nn_model.predict(processed_row)).tolist()[0][0] )  #il predict di keras ritorna una [[predizione]]
         else:
             prediction = secToDays( model_wrapper["model"].predict(processed_row).tolist()[0] ) #il predict di sktlearn ritorna una [predizione]
         
+        try:
+            prediction=TimeToErupt(eruption_time=prediction)
+        except ValidationError as e:
+            print(e.json())
+            raise HTTPException(status_code=422, detail='output prediction does not match regex [0-9]+ days, [0-9]+ hours, [0-9]+ minutes, [0-9]+ seconds') 
+
         response = {
             "message": HTTPStatus.OK.phrase,
             "status-code": HTTPStatus.OK,
@@ -122,12 +130,12 @@ def _predict(request: Request, type: str, file: UploadFile = File(..., descripti
     
     return response
 
-def process_input_file(file):
+def process_input_file(checked_csv):
         #find null values in the file       
         missing_sensors = list()
         name = 1                      #serve solo per il pd.merge successivo
         at_least_one_missed = 0
-        readed_file = pd.read_csv(file)
+        readed_file = checked_csv         
         missed_percents = list()
         for col in readed_file.columns:
             missed_percents.append( readed_file[col].isnull().sum()/len(readed_file) )  #calcola la percentuale dei valori nulli
@@ -151,7 +159,7 @@ def process_input_file(file):
         new_row = new_row.drop(['segment_id'], axis=1)
         reduced_row = new_row.copy()
         final_features = pd.read_csv(Path("data/processed") / "processed_validation_set.csv", nrows=1).columns.tolist()
-        reduced_row = reduced_row[final_features]
+        reduced_row = reduced_row[final_features]      #usa solo le features risultanti dalla feature selection fatta in prepare.py
         return reduced_row
 
 
@@ -193,3 +201,22 @@ def secToDays(n):
     n %= 60
     seconds = n
     return "%d days, %d hours, %d minutes, %d seconds" % (day, hour, minutes, seconds)
+
+def check_input_file(file: UploadFile):
+    #check file type
+    if file.content_type not in ["application/vnd.ms-excel", "text/csv"]:
+        raise HTTPException(status_code=422, detail=f"File type of {file.content_type} is not supported, please upload a csv file") 
+    
+    #check number of columns
+    csv_file = pd.read_csv(file.file)
+    if csv_file.shape[1] != 10:      
+       raise HTTPException(status_code=422, detail=f"The input csv contain {csv_file.shape[1]} columns, please upload a csv with 10 columns")
+    
+    #check columns types
+    col=1
+    for i in csv_file.dtypes:
+        if i not in ['float64', 'int64']:
+           raise HTTPException(status_code=422, detail=f"The loaded csv contain column {col} which is not numeric, please upload a csv with only numeric columns")
+        col+=1
+
+    return csv_file    
