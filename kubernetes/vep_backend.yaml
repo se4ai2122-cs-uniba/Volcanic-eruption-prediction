@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment        #k8s object
+metadata:
+  name: volcanic-eruption-prediction
+  labels:                      #key-value used to logically group k8s object
+    app: volcanic-eruption-prediction
+spec:                    #specification of the desired state
+  selector:               #state how k8s should recognize pods related to this deployement
+    matchLabels:          #pods in this deployement are identified by their labels
+      app: volcanic-eruption-prediction
+  replicas: 1                   #pods which content is described in the template part
+  strategy:                     #deployement update strategy
+    type: RollingUpdate         #stop one replica at a time and update it while the others still work
+  template:                     #how the pods in this deployement are formed
+    metadata:                   #of the pods in this deployement
+      labels:
+        app: volcanic-eruption-prediction
+    spec:
+      containers:                            #in the pods in this deployement object
+        - name: fastapi-vep-container
+          image: davideds97/volcanic-eruption-prediction:v1.6      #remoteImageRegistry:imageTag
+          imagePullPolicy: Always        #image pulled everytime this deployement is created
+          ports:             #at which the pods listen
+            - name: app
+              containerPort: 5000
+
+---
+apiVersion: v1
+kind: Service        #makes pods in the deployement accessable externally
+metadata:
+  name: volcanic-eruption-prediction-service
+  labels:
+    app: volcanic-eruption-prediction 
+spec:
+  selector:                   #should match the pods label in the template so the service know the pods to control
+    app: volcanic-eruption-prediction
+  ports:
+    - name: app
+      port: 8000         #objects in the cluster can communicate with this server on the specified port
+      targetPort: 5000   #port on which the service will send requests to, that pods will be listening on.The application in the container has to be listening on this port also
