@@ -7,9 +7,10 @@ from pathlib import Path
 from typing import List
 import pandas as pd
 from tensorflow import keras
-from fastapi import FastAPI, File, UploadFile, Request, HTTPException
+from fastapi import FastAPI, File, UploadFile, Request, HTTPException, Response
 from .schemas import TimeToErupt
 from pydantic import ValidationError
+from app.monitoring import instrumentator
 
 MODELS_DIR = Path("models")
 model_wrappers_list: List[dict] = []
@@ -21,6 +22,8 @@ app = FastAPI(
     description="This API lets you make predictions on the next volcano's eruption.",
     version="0.1",
 )
+
+instrumentator.instrument(app).expose(app, include_in_schema=False, should_gzip=True)
 
 
 def construct_response(f):
@@ -98,37 +101,39 @@ def _get_models_list(request: Request):
 
 @app.post("/models/{type}", tags=["Prediction"])
 @construct_response
-def _predict(request: Request, type: str, file: UploadFile = File(..., description="csv with sensors detections")):
+def _predict(request: Request, response:Response, type: str, file: UploadFile = File(..., description="csv with sensors detections")):
     checked_csv = check_input_file(file)    #validate the type of the input file and the number and types of its columns
     processed_row= process_input_file(checked_csv) #il csv in input viene trasformato nella riga su cui predire
     model_wrapper = next((m for m in model_wrappers_list if m["type"] == type), None)   
     if model_wrapper:
         if model_wrapper["type"] == "Neural Network":
+            pred=(np.expm1(nn_model.predict(processed_row)).tolist()[0][0])/86400
             prediction = secToDays( np.expm1(nn_model.predict(processed_row)).tolist()[0][0] )  #il predict di keras ritorna una [[predizione]]
         else:
+            pred=(model_wrapper["model"].predict(processed_row).tolist()[0])/86400
             prediction = secToDays( model_wrapper["model"].predict(processed_row).tolist()[0] ) #il predict di sktlearn ritorna una [predizione]
-        
         try:
             prediction=TimeToErupt(eruption_time=prediction)
         except ValidationError as e:
             print(e.json())
             raise HTTPException(status_code=422, detail='output prediction does not match regex [0-9]+ days, [0-9]+ hours, [0-9]+ minutes, [0-9]+ seconds') 
 
-        response = {
+        response_payload = {
             "message": HTTPStatus.OK.phrase,
             "status-code": HTTPStatus.OK,
             "data": {
                 "model-type": model_wrapper["type"],
                 "prediction": prediction
             },
-        }    
+        }
+        response.headers["X-model-type"]=type
+        response.headers["X-model-prediction"]=str(pred) 
     else:
-        response = {
+        response_payload = {
             "message": "Model not found",
             "status-code": HTTPStatus.BAD_REQUEST,
         }
-    
-    return response
+    return response_payload
 
 def process_input_file(checked_csv):
         #find null values in the file       
