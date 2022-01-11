@@ -30,125 +30,67 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "mode": "continuous-RdYlGr"
+          },
+          "custom": {
+            "fillOpacity": 55,
+            "lineWidth": 4
           },
           "mappings": [],
+          "max": 1,
+          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
                 "color": "green",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
-          }
+          },
+          "unit": "bool_on_off"
         },
         "overrides": []
       },
       "gridPos": {
         "h": 7,
-        "w": 6,
+        "w": 12,
         "x": 0,
         "y": 0
       },
-      "id": 17,
+      "id": 21,
       "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto"
-      },
-      "pluginVersion": "8.3.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "J58e3xh7k"
-          },
-          "exemplar": true,
-          "expr": "sum(fastapi_model_http_requests_total{})",
-          "interval": "",
-          "legendFormat": "",
-          "refId": "A"
-        }
-      ],
-      "title": "Total number of HTTP requests",
-      "type": "stat"
-    },
-    {
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            }
-          },
-          "mappings": []
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 6,
-        "x": 6,
-        "y": 0
-      },
-      "id": 11,
-      "options": {
-        "displayLabels": [
-          "name",
-          "percent"
-        ],
+        "alignValue": "center",
         "legend": {
-          "displayMode": "list",
+          "displayMode": "hidden",
           "placement": "bottom"
         },
-        "pieType": "pie",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
+        "mergeValues": true,
+        "rowHeight": 0.9,
+        "showValue": "auto",
         "tooltip": {
           "mode": "single"
         }
       },
-      "pluginVersion": "8.3.1",
+      "pluginVersion": "8.3.2",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "J58e3xh7k"
+            "uid": "IzxVmRJ7k"
           },
-          "exemplar": true,
-          "expr": "sum (fastapi_model_http_requests_total{}) by (method)",
+          "exemplar": false,
+          "expr": "up{job=\"vulcanic-eruption-prediction\"}",
+          "format": "time_series",
+          "instant": false,
           "interval": "",
-          "legendFormat": "{{method}}",
+          "intervalFactor": 1,
+          "legendFormat": " ",
           "refId": "A"
         }
       ],
-      "title": "Type of HTTP requests",
-      "type": "piechart"
+      "title": "STATUS",
+      "type": "state-timeline"
     },
     {
       "fieldConfig": {
@@ -179,6 +121,215 @@
         "x": 12,
         "y": 0
       },
+      "id": 17,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.3.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "IzxVmRJ7k"
+          },
+          "exemplar": false,
+          "expr": "sum(fastapi_model_http_requests_total{})",
+          "interval": "",
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "title": "Total number of HTTP requests",
+      "type": "stat"
+    },
+    {
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 6,
+        "x": 18,
+        "y": 0
+      },
+      "id": 11,
+      "options": {
+        "displayLabels": [
+          "name",
+          "percent"
+        ],
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "IzxVmRJ7k"
+          },
+          "exemplar": true,
+          "expr": "sum (fastapi_model_http_requests_total{}) by (method)",
+          "interval": "",
+          "legendFormat": "{{method}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Type of HTTP requests",
+      "type": "piechart"
+    },
+    {
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 7
+      },
+      "id": 15,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "IzxVmRJ7k"
+          },
+          "exemplar": true,
+          "expr": "sum(rate(fastapi_model_http_requests_total{}[$__interval]))",
+          "interval": "",
+          "legendFormat": "HTTP requests",
+          "refId": "A"
+        }
+      ],
+      "title": "HTTP requests rate in the last 1m",
+      "type": "timeseries"
+    },
+    {
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 6,
+        "x": 12,
+        "y": 7
+      },
       "id": 9,
       "options": {
         "orientation": "auto",
@@ -192,12 +343,12 @@
         "showThresholdLabels": false,
         "showThresholdMarkers": true
       },
-      "pluginVersion": "8.3.1",
+      "pluginVersion": "8.3.3",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "J58e3xh7k"
+            "uid": "IzxVmRJ7k"
           },
           "exemplar": true,
           "expr": "sum(fastapi_inprogress)",
@@ -237,7 +388,7 @@
         "h": 7,
         "w": 6,
         "x": 18,
-        "y": 0
+        "y": 7
       },
       "id": 19,
       "options": {
@@ -252,12 +403,12 @@
         "showThresholdLabels": false,
         "showThresholdMarkers": true
       },
-      "pluginVersion": "8.3.1",
+      "pluginVersion": "8.3.3",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "J58e3xh7k"
+            "uid": "IzxVmRJ7k"
           },
           "exemplar": true,
           "expr": "sum(rate(fastapi_model_http_requests_total[1m]))",
@@ -268,175 +419,6 @@
       ],
       "title": "Request rate in the last minute",
       "type": "gauge"
-    },
-    {
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 7
-      },
-      "id": 15,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "single"
-        }
-      },
-      "pluginVersion": "8.3.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "J58e3xh7k"
-          },
-          "exemplar": true,
-          "expr": "sum(rate(fastapi_model_http_requests_total{}[$__interval]))",
-          "interval": "",
-          "legendFormat": "HTTP requests",
-          "refId": "A"
-        }
-      ],
-      "title": "HTTP requests rate in the last 30s",
-      "type": "timeseries"
-    },
-    {
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 7
-      },
-      "id": 13,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "single"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "J58e3xh7k"
-          },
-          "exemplar": true,
-          "expr": "sum by (handler) (rate(fastapi_model_http_requests_total[$__interval]))",
-          "interval": "",
-          "legendFormat": "{{handler}}",
-          "refId": "A"
-        }
-      ],
-      "title": "Endpoint requests in the last 30s",
-      "type": "timeseries"
     },
     {
       "description": "Portion of prediction requests directed to each model type.",
@@ -457,10 +439,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
-        "w": 6,
-        "x": 9,
-        "y": 15
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 14
       },
       "id": 4,
       "options": {
@@ -470,7 +452,10 @@
         ],
         "legend": {
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "right",
+          "values": [
+            "value"
+          ]
         },
         "pieType": "pie",
         "reduceOptions": {
@@ -488,7 +473,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "J58e3xh7k"
+            "uid": "IzxVmRJ7k"
           },
           "exemplar": true,
           "expr": "fastapi_model_model_output_count",
@@ -501,12 +486,95 @@
       "type": "piechart"
     },
     {
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 11,
+        "x": 12,
+        "y": 14
+      },
+      "id": 13,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "IzxVmRJ7k"
+          },
+          "exemplar": true,
+          "expr": "sum by (handler) (rate(fastapi_model_http_requests_total[1m]))",
+          "interval": "",
+          "legendFormat": "{{handler}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Endpoint requests in the last 1m",
+      "type": "timeseries"
+    },
+    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 23
+        "y": 21
       },
       "id": 6,
       "panels": [],
@@ -541,7 +609,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 24
+        "y": 22
       },
       "id": 2,
       "options": {
@@ -556,15 +624,15 @@
         },
         "showUnfilled": true
       },
-      "pluginVersion": "8.3.1",
+      "pluginVersion": "8.3.3",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "J58e3xh7k"
+            "uid": "IzxVmRJ7k"
           },
-          "exemplar": true,
-          "expr": "{le=~\"100\\\\.0|150\\\\.0|200\\\\.0|250\\\\.0|300\\\\.0|350\\\\.0|400\\\\.0\",model_type=\"LGBMRegressor\"}",
+          "exemplar": false,
+          "expr": "fastapi_model_model_output_bucket{model_type=\"LGBMRegressor\"}",
           "format": "heatmap",
           "interval": "",
           "legendFormat": "{{le}}",
@@ -603,7 +671,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 24
+        "y": 22
       },
       "id": 7,
       "options": {
@@ -618,15 +686,15 @@
         },
         "showUnfilled": true
       },
-      "pluginVersion": "8.3.1",
+      "pluginVersion": "8.3.3",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "J58e3xh7k"
+            "uid": "IzxVmRJ7k"
           },
-          "exemplar": true,
-          "expr": "{le=~\"100\\\\.0|150\\\\.0|200\\\\.0|250\\\\.0|300\\\\.0|350\\\\.0|400\\\\.0\",model_type=\"XGBRegressor\"}",
+          "exemplar": false,
+          "expr": "fastapi_model_model_output_bucket{model_type=\"XGBRegressor\"}",
           "format": "heatmap",
           "interval": "",
           "legendFormat": "{{le}}",
@@ -664,8 +732,8 @@
       "gridPos": {
         "h": 8,
         "w": 12,
-        "x": 0,
-        "y": 48
+        "x": 6,
+        "y": 30
       },
       "id": 8,
       "options": {
@@ -680,15 +748,15 @@
         },
         "showUnfilled": true
       },
-      "pluginVersion": "8.3.1",
+      "pluginVersion": "8.3.3",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "J58e3xh7k"
+            "uid": "IzxVmRJ7k"
           },
-          "exemplar": true,
-          "expr": "{le=~\"100\\\\.0|150\\\\.0|200\\\\.0|250\\\\.0|300\\\\.0|350\\\\.0|400\\\\.0\",model_type=\"Neural Network\"}",
+          "exemplar": false,
+          "expr": "fastapi_model_model_output_bucket{model_type=\"Neural Network\"}",
           "format": "heatmap",
           "interval": "",
           "legendFormat": "{{le}}",
@@ -701,20 +769,20 @@
     }
   ],
   "refresh": "5s",
-  "schemaVersion": 33,
+  "schemaVersion": 34,
   "style": "dark",
   "tags": [],
   "templating": {
     "list": []
   },
   "time": {
-    "from": "now-6h",
+    "from": "now-5m",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "Grafana Dashboard",
   "uid": "H4Tq0-2nz",
-  "version": 2,
+  "version": 35,
   "weekStart": ""
-} 
+}
