@@ -1,6 +1,6 @@
 """
 Run load tests:
-locust -f load_test/locustfile.py --host http://127.0.0.1:3000
+locust -f load_test/locustfile.py --host http://localhost:5000     #host= api address
 """
 
 import random
@@ -13,7 +13,7 @@ from os.path import dirname
 
 models = ['LGBMRegressor', 'XGBRegressor', 'Neural Network'] #i tre tipi di modello tra cui scegliere
 
-folder_path=dirname(dirname(__file__)) + "/data/raw/test/"
+folder_path=dirname(dirname(__file__)) + "/data/raw/predict-volcanic-eruptions_dataset/test/"
 csv = os.listdir(folder_path) #inserisce nella variabile csv tutti i nomi dei csv nella cartella test
 
 def selectRandom(valori):
@@ -24,16 +24,15 @@ class VulcanicPredictionUser(HttpUser):
 
     @task(1)
     def general(self):
-        self.client.get("")
+        self.client.get("/")
 
     @task(1)
     def modelList(self):
-        self.client.get("models")
+        self.client.get("/models")
 
     @task(5)
     def prediction(self):
-
-        url="models/"+selectRandom(models)
+        url="/models/"+selectRandom(models)
         file_name=selectRandom(csv)
         path_file = folder_path + file_name
         files = [
