@@ -9,7 +9,7 @@ on: [push]
 jobs:
   code-quality-assurance:
     name: Code quality assurance
-    runs-on: windows
+    runs-on: windows-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -27,7 +27,7 @@ jobs:
 
   data-quality-assurance:
     name: Data quality assurance
-    runs-on: windows
+    runs-on: windows-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -45,7 +45,7 @@ jobs:
   model-training:
     name: Model training
     needs: [code-quality-assurance, data-quality-assurance]
-    runs-on: windows
+    runs-on: windows-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
