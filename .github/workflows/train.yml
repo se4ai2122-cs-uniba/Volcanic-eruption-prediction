@@ -1,0 +1,43 @@
+name: Train and Evaluate 
+
+# Controls when the workflow will run
+on:
+  
+  pull_request:
+    branches: [ main ]
+
+jobs:
+
+  model-training:
+    name: training dataset
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r ./requirements.txt
+      - name: Train models
+        run: python src/train.py
+        
+  model-evaluate:
+    name: evaluate models
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: setup Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r ./requirements.txt
+      - name: Evaluate models
+        run: python src/evaluate.py
