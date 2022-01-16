@@ -1,4 +1,4 @@
-name: Test Quality
+name: Test
 
 # Controls when the workflow will run
 on:
@@ -9,25 +9,7 @@ on:
 
   workflow_dispatch:
   
-jobs:
-
-  code-quality-assurance:
-    name: Code quality assurance
-    runs-on: windows-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-      - name: Set uo Pytohn 3.9
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.9
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r ./requirements.txt
-      - name: Analysing the code with pylint
-        run: |
-          pylint src/ app/                    
+jobs:                  
 
   data-quality-assurance:
     name: Data quality assurance
