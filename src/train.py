@@ -21,7 +21,7 @@ if not Path.exists(Path("models")):
 MODELS_DIR = Path("models")
 
 params_path = Path("params.yaml")               # Path of the parameters file
-input_folder_path = "data" + separator + "processed"      # Path of the prepared data folder   
+input_folder_path = os.path.join("data", "processed")      # Path of the prepared data folder   
 
 model_wrappers_list: List[dict] = []
 
