@@ -26,10 +26,10 @@ input_folder_path = "data" + separator + "processed"      # Path of the prepared
 model_wrappers_list: List[dict] = []
 
 # Read training and validation datasets
-train = pd.read_csv(input_folder_path / "processed_training_set.csv")
-val = pd.read_csv(input_folder_path / "processed_validation_set.csv")
-y_train = pd.read_csv(input_folder_path / "y_train.csv")
-y_val = pd.read_csv(input_folder_path / "y_validation.csv")
+train = pd.read_csv(input_folder_path + separator + "processed_training_set.csv")
+val = pd.read_csv(input_folder_path + separator + "processed_validation_set.csv")
+y_train = pd.read_csv(input_folder_path + separator + "y_train.csv")
+y_val = pd.read_csv(input_folder_path + separator + "y_validation.csv")
 
 # Read data preparation parameters
 with open(params_path, "r") as params_file:
