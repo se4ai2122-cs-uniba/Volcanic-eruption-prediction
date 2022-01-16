@@ -1,3 +1,5 @@
+import os, sys
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import numpy as np
 import pickle
 from datetime import datetime
@@ -8,12 +10,20 @@ from typing import List
 import pandas as pd
 from tensorflow import keras
 from fastapi import FastAPI, File, UploadFile, Request, HTTPException
-from .schemas import TimeToErupt
+sys.path.insert(1, str((Path(__file__).parent / '..').resolve()))   #path of the project working directory relative to this file
+from app.schemas import TimeToErupt
 from pydantic import ValidationError
 
+#Loads all pickled models found in 'MODELS_DIR' and adds them to a list
 MODELS_DIR = Path("models")
 model_wrappers_list: List[dict] = []
 nn_model = keras.models.load_model(MODELS_DIR /'Neural_Network.h5', compile=False)
+model_paths = [filename for filename in MODELS_DIR.iterdir() if filename.suffix == ".pkl"]
+for path in model_paths:
+    with open(path, "rb") as file:
+        model_wrapper = pickle.load(file)
+        model_wrappers_list.append(model_wrapper)
+
 
 # Define application
 app = FastAPI(
@@ -44,21 +54,7 @@ def construct_response(f):
 
         return response
 
-    return wrap
-
-
-@app.on_event("startup")
-def _load_models():
-#Loads all pickled models found in 'MODELS_DIR' and adds them to 'models_list'
-
-    model_paths = [
-        filename for filename in MODELS_DIR.iterdir() if filename.suffix == ".pkl"
-    ]
-    for path in model_paths:
-        with open(path, "rb") as file:
-            model_wrapper = pickle.load(file)
-            model_wrappers_list.append(model_wrapper)
-  
+    return wrap    
 
 @app.get("/", tags=["General"])  # path operation decorator
 @construct_response
@@ -83,8 +79,7 @@ def _get_models_list(request: Request):
             "parameters": model["params"],
             "rmse": model["metrics"]
         }
-        for model in model_wrappers_list
-        
+        for model in model_wrappers_list      
     ]
 
     response = {
@@ -96,12 +91,12 @@ def _get_models_list(request: Request):
     return response
 
 
-@app.post("/models/{type}", tags=["Prediction"])
+@app.post("/predict/{model_type}", tags=["Prediction"])
 @construct_response
-def _predict(request: Request, type: str, file: UploadFile = File(..., description="csv with sensors detections")):
+def _predict(request: Request, model_type: str, file: UploadFile = File(..., description="csv with sensors detections")):
     checked_csv = check_input_file(file)    #validate the type of the input file and the number and types of its columns
     processed_row= process_input_file(checked_csv) #il csv in input viene trasformato nella riga su cui predire
-    model_wrapper = next((m for m in model_wrappers_list if m["type"] == type), None)   
+    model_wrapper = next((m for m in model_wrappers_list if m["type"] == model_type), None)   
     if model_wrapper:
         if model_wrapper["type"] == "Neural Network":
             prediction = secToDays( np.expm1(nn_model.predict(processed_row)).tolist()[0][0] )  #il predict di keras ritorna una [[predizione]]

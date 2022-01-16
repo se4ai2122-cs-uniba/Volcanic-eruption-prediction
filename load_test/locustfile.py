@@ -4,9 +4,7 @@ locust -f load_test/locustfile.py --host http://localhost:5000     #host= api ad
 """
 
 import random
-import time
 from locust import HttpUser, task, between
-from pathlib import Path
 import os 
 from os.path import dirname
 
@@ -32,7 +30,7 @@ class VulcanicPredictionUser(HttpUser):
 
     @task(5)
     def prediction(self):
-        url="/models/"+selectRandom(models)
+        url="/predict/"+selectRandom(models)
         file_name=selectRandom(csv)
         path_file = folder_path + file_name
         files = [
