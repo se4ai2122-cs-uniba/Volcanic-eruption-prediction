@@ -12,7 +12,7 @@ from tensorflow import keras
 params_path = Path("params.yaml")
 
 # Path to the prepared data folder
-input_folder_path = Path("data/processed")
+input_folder_path = Path("data\processed")
 
 # Path to the models folder
 model_folder_path = Path("models")
