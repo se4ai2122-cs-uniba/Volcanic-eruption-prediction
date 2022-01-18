@@ -94,7 +94,13 @@ def _get_models_list(request: Request):
 @app.post("/predict/{model_type}", tags=["Prediction"])
 @construct_response
 def _predict(request: Request, model_type: str, file: UploadFile = File(..., description="csv with sensors detections")):
-    checked_csv = check_input_file(file)    #validate the type of the input file and the number and types of its columns
+    try:
+        checked_csv = check_input_file(file)    #validate the type of the input file and the number and types of its columns
+    except HTTPException as e:
+        return { "message": e.detail,
+                 "status-code": HTTPStatus.BAD_REQUEST,
+                }
+
     processed_row= process_input_file(checked_csv) #il csv in input viene trasformato nella riga su cui predire
     model_wrapper = next((m for m in model_wrappers_list if m["type"] == model_type), None)   
     if model_wrapper:
@@ -119,7 +125,7 @@ def _predict(request: Request, model_type: str, file: UploadFile = File(..., des
         }    
     else:
         response = {
-            "message": "Model not found",
+            "message": "Model not found, please choose a model available in the models list",
             "status-code": HTTPStatus.BAD_REQUEST,
         }
     
