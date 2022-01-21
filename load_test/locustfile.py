@@ -9,7 +9,7 @@ import os
 from os.path import dirname
 
 
-models = ['LGBMRegressor', 'XGBRegressor', 'Neural Network'] #i tre tipi di modello tra cui scegliere
+models = ['LGBMRegressor', 'XGBRegressor', 'Neural_Network'] #i tre tipi di modello tra cui scegliere
 
 folder_path=dirname(dirname(__file__)) + "/data/raw/predict-volcanic-eruptions_dataset/test/"
 csv = os.listdir(folder_path) #inserisce nella variabile csv tutti i nomi dei csv nella cartella test

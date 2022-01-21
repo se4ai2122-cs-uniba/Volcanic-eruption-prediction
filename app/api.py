@@ -120,7 +120,7 @@ def _predict(request: Request, model_type: str, file: UploadFile = File(..., des
     processed_row= process_input_file(checked_csv) #il csv in input viene trasformato nella riga su cui predire
     model_wrapper = next((m for m in model_wrappers_list if m["type"] == model_type), None)   
     if model_wrapper:
-        if model_wrapper["type"] == "Neural Network":
+        if model_wrapper["type"] == "Neural_Network":
             prediction = secToDays( np.expm1(nn_model.predict(processed_row)).tolist()[0][0] )  #il predict di keras ritorna una [[predizione]]
         else:
             prediction = secToDays( model_wrapper["model"].predict(processed_row).tolist()[0] ) #il predict di sktlearn ritorna una [predizione]

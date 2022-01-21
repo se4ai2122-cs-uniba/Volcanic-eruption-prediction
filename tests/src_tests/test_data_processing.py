@@ -17,7 +17,7 @@ y_val_path = processed_dataset_path / 'y_validation.csv'
 
 @pytest.mark.processing
 def test_files_creation():
-    process_dataset()
+    process_dataset()         #takes 1h 
     assert processed_dataset_path.is_dir()
     assert processed_training_set_path.is_file()
     assert processed_val_set_path.is_file()

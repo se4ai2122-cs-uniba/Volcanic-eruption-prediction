@@ -77,7 +77,7 @@ def get_api_info(type):
                                         "rmse": 8648891.887338564
                                         },
                                         {
-                                            "type": "Neural Network",
+                                            "type": "Neural_Network",
                                             "parameters": {
                                                 "dropout": 0.6,
                                                 "learning_rate": 0.01,

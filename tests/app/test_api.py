@@ -59,7 +59,7 @@ def test_docs():
     assert response.status_code == HTTPStatus.OK
 
 
-MODELS=['LGBMRegressor','Neural Network','XGBRegressor']
+MODELS=['LGBMRegressor','Neural_Network','XGBRegressor']
 @pytest.mark.api
 def test_get_models():
     response = client.get("/models")
@@ -100,7 +100,7 @@ def test_predict_on_wrong_input(get_test_csv, bad_csv, error_type):
         response = client.post("/predict/"+ 'LGBMRegressor', files= bad_csv('few_columns'))
         message =  'The input csv contain 2 columns, please upload a csv with 10 columns'  
     elif error_type == 'not_a_csv':   
-        response = client.post("/predict/"+ 'Neural Network', files= bad_csv('not_csv'))
+        response = client.post("/predict/"+ 'Neural_Network', files= bad_csv('not_csv'))
         message =  'File type of text/plain is not supported, please upload a csv file'  
     elif error_type == 'not_numeric_columns':  
         response = client.post("/predict/"+ 'XGBRegressor', files= bad_csv('not_numeric_columns'))
