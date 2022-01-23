@@ -46,3 +46,5 @@ jobs:
         run: |
           cd tests/app
           pytest -v
+          cd tests/src_tests
+          pytest -v
