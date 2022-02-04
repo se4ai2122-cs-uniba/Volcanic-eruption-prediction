@@ -706,7 +706,7 @@
       "type": "bargauge"
     },
     {
-      "description": "Occurrence of prediction output values for the Neural Network model",
+      "description": "Occurrence of prediction output values for the Neural_Network model",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -756,14 +756,14 @@
             "uid": "IzxVmRJ7k"
           },
           "exemplar": false,
-          "expr": "fastapi_model_model_output_bucket{model_type=\"Neural Network\"}",
+          "expr": "fastapi_model_model_output_bucket{model_type=\"Neural_Network\"}",
           "format": "heatmap",
           "interval": "",
           "legendFormat": "{{le}}",
           "refId": "A"
         }
       ],
-      "title": "Neural Network",
+      "title": "Neural_Network",
       "transformations": [],
       "type": "bargauge"
     }

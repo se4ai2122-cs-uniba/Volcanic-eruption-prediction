@@ -132,12 +132,12 @@ def create_NN_model():
     nn_preds = np.expm1(nn_model.predict(val))
     nn_rmse= rmse(y_val, nn_preds)
     nn_model_dict = {
-        "type": "Neural Network",
+        "type": "Neural_Network",
         "params": nn_params,
         "metrics": nn_rmse
     }
     model_wrappers_list.append(nn_model_dict)
-    print("Neural Network model created.")
+    print("Neural_Network model created.")
     print(nn_model_dict, end="\n\n\n")
 
 # Create the specified model

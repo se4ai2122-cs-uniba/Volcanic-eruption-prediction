@@ -79,7 +79,7 @@ def model_output(
     )
     METRIC.labels("LGBMRegressor")
     METRIC.labels("XGBRegressor")
-    METRIC.labels("Neural Network")
+    METRIC.labels("Neural_Network")
 
     def instrumentation(info: Info) -> None:
         if info.modified_handler == "/models/{type}":
