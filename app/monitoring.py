@@ -82,7 +82,7 @@ def model_output(
     METRIC.labels("Neural_Network")
 
     def instrumentation(info: Info) -> None:
-        if info.modified_handler == "/models/{type}":
+        if info.modified_handler == "/predict/{model_type}":
             predicted_eruption = info.response.headers.get("X-model-prediction")
             model_type=info.response.headers.get("X-model-type")
             if predicted_eruption:

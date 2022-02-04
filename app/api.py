@@ -1,3 +1,6 @@
+import os, sys
+import uvicorn
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import numpy as np
 import pickle
 from datetime import datetime
@@ -8,22 +11,47 @@ from typing import List
 import pandas as pd
 from tensorflow import keras
 from fastapi import FastAPI, File, UploadFile, Request, HTTPException, Response
-from .schemas import TimeToErupt
+sys.path.insert(1, str((Path(__file__).parent / '..').resolve()))   #path of the project working directory relative to this file
+from app.schemas import TimeToErupt, get_api_info
+from src.prepare import build_features
 from pydantic import ValidationError
 from app.monitoring import instrumentator
 
+description = """VEP API allows you to know the predicted time of a volcano eruption starting from a csv of sensors relevations about that volcano
+## Users
+You will be able to:
+* **See available ML models informations** 
+* **Know the time of a volcano eruption predicted by a model of your choice** 
+## Team
+[Davide De Simone](https://github.com/Davide-Ds) <br>
+[Giuseppe Gallone](https://github.com/giusegal) <br> 
+"""
+
+#automatically start the server when this script is runned
+if __name__ == '__main__':
+    uvicorn.run("api:app", host="0.0.0.0", port=5000, reload=True, reload_dirs=['app', 'models'])
+
+#Loads all pickled models found in 'MODELS_DIR' and adds them to a list
 MODELS_DIR = Path("models")
 model_wrappers_list: List[dict] = []
 nn_model = keras.models.load_model(MODELS_DIR /'Neural_Network.h5', compile=False)
+model_paths = [filename for filename in MODELS_DIR.iterdir() if filename.suffix == ".pkl"]
+for path in model_paths:
+    with open(path, "rb") as file:
+        model_wrapper = pickle.load(file)
+        model_wrappers_list.append(model_wrapper)
+
 
 # Define application
 app = FastAPI(
     title="Volcanic Eruption Prediction",
-    description="This API lets you make predictions on the next volcano's eruption.",
+    description=description,
     version="0.1",
 )
 
-instrumentator.instrument(app).expose(app, include_in_schema=False, should_gzip=True)
+@app.on_event("startup")         #to fix a bug when starting uvicorn by running directly this script. See https://github.com/trallnag/prometheus-fastapi-instrumentator/issues/80
+async def startup_event():
+   instrumentator.instrument(app).expose(app, include_in_schema=False, should_gzip=True)
 
 
 def construct_response(f):
@@ -47,23 +75,9 @@ def construct_response(f):
 
         return response
 
-    return wrap
+    return wrap    
 
-
-@app.on_event("startup")
-def _load_models():
-#Loads all pickled models found in 'MODELS_DIR' and adds them to 'models_list'
-
-    model_paths = [
-        filename for filename in MODELS_DIR.iterdir() if filename.suffix == ".pkl"
-    ]
-    for path in model_paths:
-        with open(path, "rb") as file:
-            model_wrapper = pickle.load(file)
-            model_wrappers_list.append(model_wrapper)
-  
-
-@app.get("/", tags=["General"])  # path operation decorator
+@app.get("/", responses= get_api_info('response_root'), tags=["General"])  # path operation decorator
 @construct_response
 def _index(request: Request):
 
@@ -75,7 +89,7 @@ def _index(request: Request):
     return response
 
 
-@app.get("/models", tags=["Model List"])
+@app.get("/models", description=get_api_info('description_models'), responses= get_api_info('response_model_list'), tags=["Model List"])
 @construct_response
 def _get_models_list(request: Request):
     #Return the list of available models
@@ -86,8 +100,7 @@ def _get_models_list(request: Request):
             "parameters": model["params"],
             "rmse": model["metrics"]
         }
-        for model in model_wrappers_list
-        
+        for model in model_wrappers_list      
     ]
 
     response = {
@@ -99,12 +112,18 @@ def _get_models_list(request: Request):
     return response
 
 
-@app.post("/models/{type}", tags=["Prediction"])
+@app.post("/predict/{model_type}",summary="Model prediction", description= get_api_info('description_predict'), responses= get_api_info('responses'), tags=["Prediction"])
 @construct_response
-def _predict(request: Request, response:Response, type: str, file: UploadFile = File(..., description="csv with sensors detections")):
-    checked_csv = check_input_file(file)    #validate the type of the input file and the number and types of its columns
+def _predict(request: Request, response:Response, model_type: str, file: UploadFile = File(..., description="     CSV of 10 columns with only numeric values")):
+    try:
+        checked_csv = check_input_file(file)    #validate the type of the input file and the number and types of its columns
+    except HTTPException as e:
+        return { "message": e.detail,
+                 "status-code": HTTPStatus.BAD_REQUEST,
+                }
+
     processed_row= process_input_file(checked_csv) #il csv in input viene trasformato nella riga su cui predire
-    model_wrapper = next((m for m in model_wrappers_list if m["type"] == type), None)   
+    model_wrapper = next((m for m in model_wrappers_list if m["type"] == model_type), None)   
     if model_wrapper:
         if model_wrapper["type"] == "Neural_Network":
             pred=(np.expm1(nn_model.predict(processed_row)).tolist()[0][0])/86400  #take only the days from the predictions to pass it to prometheus
@@ -126,11 +145,11 @@ def _predict(request: Request, response:Response, type: str, file: UploadFile = 
                 "prediction": prediction
             },
         }
-        response.headers["X-model-type"]=type
-        response.headers["X-model-prediction"]=str(pred) 
+        response.headers["X-model-type"]=model_type
+        response.headers["X-model-prediction"]= str(int(pred)) 
     else:
         response_payload = {
-            "message": "Model not found",
+            "message": "Model not found, please choose a model available in the models list",
             "status-code": HTTPStatus.BAD_REQUEST,
         }
     return response_payload
@@ -167,35 +186,6 @@ def process_input_file(checked_csv):
         reduced_row = reduced_row[final_features]      #usa solo le features risultanti dalla feature selection fatta in prepare.py
         return reduced_row
 
-
-def build_features(signal, ts, sensor_id):       #signal=colonna di un csv, ts=nome csv. Calcola delle statistiche per ogni colonna di ogni csv, cioè per le rilevazioni di ogni sensore
-    X = pd.DataFrame()
-    f = np.fft.fft(signal)  #compute the Discrete Fourier Transform of a sequence. It converts a space or time signal to signal of the frequency domain
-    f_real = np.real(f)
-    X.loc[ts, f'{sensor_id}_sum']       = signal.sum()
-    X.loc[ts, f'{sensor_id}_mean']      = signal.mean()
-    X.loc[ts, f'{sensor_id}_std']       = signal.std()
-    X.loc[ts, f'{sensor_id}_var']       = signal.var() 
-    X.loc[ts, f'{sensor_id}_max']       = signal.max()
-    X.loc[ts, f'{sensor_id}_min']       = signal.min()
-    X.loc[ts, f'{sensor_id}_skew']      = signal.skew()
-    X.loc[ts, f'{sensor_id}_mad']       = signal.mad()  # compute the Mean (or median) Absolute Deviation (average distance between each data point and the mean(or median). Gives an idea about the variability in a dataset)
-    X.loc[ts, f'{sensor_id}_kurtosis']  = signal.kurtosis()
-    X.loc[ts, f'{sensor_id}_quantile99']= np.quantile(signal, 0.99)
-    X.loc[ts, f'{sensor_id}_quantile95']= np.quantile(signal, 0.95)
-    X.loc[ts, f'{sensor_id}_quantile85']= np.quantile(signal, 0.85)
-    X.loc[ts, f'{sensor_id}_quantile75']= np.quantile(signal, 0.75)
-    X.loc[ts, f'{sensor_id}_quantile55']= np.quantile(signal, 0.55)
-    X.loc[ts, f'{sensor_id}_quantile45']= np.quantile(signal, 0.45) 
-    X.loc[ts, f'{sensor_id}_quantile25']= np.quantile(signal, 0.25) 
-    X.loc[ts, f'{sensor_id}_quantile15']= np.quantile(signal, 0.15) 
-    X.loc[ts, f'{sensor_id}_quantile05']= np.quantile(signal, 0.05)
-    X.loc[ts, f'{sensor_id}_quantile01']= np.quantile(signal, 0.01)
-    X.loc[ts, f'{sensor_id}_fft_real_mean']= f_real.mean()
-    X.loc[ts, f'{sensor_id}_fft_real_std'] = f_real.std()
-    X.loc[ts, f'{sensor_id}_fft_real_max'] = f_real.max()
-    X.loc[ts, f'{sensor_id}_fft_real_min'] = f_real.min()
-    return X
 
 def secToDays(n):
     day = n // (24 * 3600)

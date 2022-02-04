@@ -1,3 +1,5 @@
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import pandas as pd
 import numpy as np
 import pickle
@@ -11,17 +13,16 @@ from tensorflow.keras.callbacks import EarlyStopping
 from typing import List
 from sklearn.metrics import mean_squared_error as mse
 import math
-import os
+
+
+model_wrappers_list: List[dict] = []
 
 # Path to the models folder
 if not Path.exists(Path("models")):
   Path("models").mkdir()
 MODELS_DIR = Path("models")
-
 params_path = Path("params.yaml")               # Path of the parameters file
 input_folder_path = Path("data/processed")      # Path of the prepared data folder   
-
-model_wrappers_list: List[dict] = []
 
 # Read training and validation datasets
 train = pd.read_csv(input_folder_path / "processed_training_set.csv")
@@ -37,10 +38,10 @@ with open(params_path, "r") as params_file:
     except yaml.YAMLError as exc:
         print(exc)
 
-def rmse(y_true, y_pred):     #TODO:importarle da altro file
+def rmse(y_true, y_pred):    
     return math.sqrt(mse(y_true, y_pred))
 
-def root_mean_squared_error(y_true, y_pred):            #da passare alla NN
+def root_mean_squared_error(y_true, y_pred):            #da passare alla NN keras non accetta rmse di sklearn
     return K.sqrt(K.mean(K.square(y_pred - y_true), axis=0))
 
 # =============== #
@@ -109,6 +110,7 @@ def define_NN_architecture():
     return model
 
 def create_NN_model():
+    print("Creating Neural_Network...")
     nn_params={
     'dropout':params["dropout"],
     'learning_rate':params["learning_rate"],
@@ -140,22 +142,24 @@ def create_NN_model():
     print("Neural_Network model created.")
     print(nn_model_dict, end="\n\n\n")
 
-# Create the specified model
-alg = params["algorithm"]
-if alg=='LGBMRegressor' or alg=='all' :
-    create_LGBMRegressor_model()
-if alg=='XGBRegressor' or alg=='all':
-    create_XGBRegressor_model()
-if alg=='Neural_Network' or alg=='all':
-    create_NN_model()
-
 # ============= #
 # Serialization #
 # ============= #
-print("Serializing model wrappers...")
-for wrapped_model in model_wrappers_list:
-    pkl_filename = f"{wrapped_model['type']}_model.pkl"
-    pkl_path = MODELS_DIR / pkl_filename
-    with open(pkl_path, "wb") as file:
-        pickle.dump(wrapped_model, file)
-print("Serializing completed.")
+def serialize_models_wrappers():
+    print("Serializing model wrappers...")
+    for wrapped_model in model_wrappers_list:
+        pkl_filename = f"{wrapped_model['type']}_model.pkl"
+        pkl_path = MODELS_DIR / pkl_filename
+        with open(pkl_path, "wb") as file:
+            pickle.dump(wrapped_model, file)
+    print("Serializing completed.")
+
+if __name__ == '__main__':                   # execute the code only if the file was run directly, and not imported.
+    alg = params["algorithm"]                # Create the model specified in the params.yaml file
+    if alg=='LGBMRegressor' or alg=='all' :
+        create_LGBMRegressor_model()
+    if alg=='XGBRegressor' or alg=='all':
+        create_XGBRegressor_model()
+    if alg=='Neural_Network' or alg=='all':
+        create_NN_model()
+    serialize_models_wrappers()
