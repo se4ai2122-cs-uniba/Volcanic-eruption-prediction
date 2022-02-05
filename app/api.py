@@ -10,11 +10,12 @@ from pathlib import Path
 from typing import List
 import pandas as pd
 from tensorflow import keras
-from fastapi import FastAPI, File, UploadFile, Request, HTTPException
+from fastapi import FastAPI, File, UploadFile, Request, HTTPException, Response
 sys.path.insert(1, str((Path(__file__).parent / '..').resolve()))   #path of the project working directory relative to this file
 from app.schemas import TimeToErupt, get_api_info
 from src.prepare import build_features
 from pydantic import ValidationError
+from app.monitoring import instrumentator
 
 description = """VEP API allows you to know the predicted time of a volcano eruption starting from a csv of sensors relevations about that volcano
 ## Users
@@ -47,6 +48,10 @@ app = FastAPI(
     description=description,
     version="0.1",
 )
+
+@app.on_event("startup")         #to fix a bug when starting uvicorn by running directly this script. See https://github.com/trallnag/prometheus-fastapi-instrumentator/issues/80
+async def startup_event():
+   instrumentator.instrument(app).expose(app, include_in_schema=False, should_gzip=True)
 
 
 def construct_response(f):
@@ -109,7 +114,7 @@ def _get_models_list(request: Request):
 
 @app.post("/predict/{model_type}",summary="Model prediction", description= get_api_info('description_predict'), responses= get_api_info('responses'), tags=["Prediction"])
 @construct_response
-def _predict(request: Request, model_type: str, file: UploadFile = File(..., description="     CSV of 10 columns with only numeric values")):
+def _predict(request: Request, response:Response, model_type: str, file: UploadFile = File(..., description="     CSV of 10 columns with only numeric values")):
     try:
         checked_csv = check_input_file(file)    #validate the type of the input file and the number and types of its columns
     except HTTPException as e:
@@ -121,31 +126,33 @@ def _predict(request: Request, model_type: str, file: UploadFile = File(..., des
     model_wrapper = next((m for m in model_wrappers_list if m["type"] == model_type), None)   
     if model_wrapper:
         if model_wrapper["type"] == "Neural_Network":
-            prediction = secToDays( np.expm1(nn_model.predict(processed_row)).tolist()[0][0] )  #il predict di keras ritorna una [[predizione]]
+            pred=(np.expm1(nn_model.predict(processed_row)).tolist()[0][0])/86400  #take only the days from the predictions to pass it to prometheus
+            prediction = secToDays(np.expm1(nn_model.predict(processed_row)).tolist()[0][0])  #prediction in ddhhmmss format. Il predict di keras ritorna una [[predizione]]
         else:
-            prediction = secToDays( model_wrapper["model"].predict(processed_row).tolist()[0] ) #il predict di sktlearn ritorna una [predizione]
-        
+            pred=(model_wrapper["model"].predict(processed_row).tolist()[0])/86400
+            prediction = secToDays(model_wrapper["model"].predict(processed_row).tolist()[0]) #il predict di sktlearn ritorna una [predizione]
         try:
             prediction=TimeToErupt(eruption_time=prediction)
         except ValidationError as e:
             print(e.json())
             raise HTTPException(status_code=422, detail='output prediction does not match regex [0-9]+ days, [0-9]+ hours, [0-9]+ minutes, [0-9]+ seconds') 
 
-        response = {
+        response_payload = {
             "message": HTTPStatus.OK.phrase,
             "status-code": HTTPStatus.OK,
             "data": {
                 "model-type": model_wrapper["type"],
                 "prediction": prediction
             },
-        }    
+        }
+        response.headers["X-model-type"]=model_type
+        response.headers["X-model-prediction"]= str(int(pred)) 
     else:
-        response = {
+        response_payload = {
             "message": "Model not found, please choose a model available in the models list",
             "status-code": HTTPStatus.BAD_REQUEST,
         }
-    
-    return response
+    return response_payload
 
 def process_input_file(checked_csv):
         #find null values in the file       
