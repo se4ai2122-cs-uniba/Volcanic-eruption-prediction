@@ -28,9 +28,9 @@ def test_model_creation(model):
     serialized_model_path = Path("models") / (model + '_model.pkl')
     if serialized_model_path.exists():                                  #if is not the first training
         with open(serialized_model_path, "rb") as pickled_model_dict:
-           previous_rmse = pickle.load(pickled_model_dict)['metrics']    
-        
+           previous_rmse = pickle.load(pickled_model_dict)['metrics']         
         assert model_wrappers_list[0]['metrics'] <= previous_rmse
+    model_wrappers_list.clear()      #to have the models always in position 0
 
 
 @pytest.mark.training
@@ -44,7 +44,7 @@ def test_model_serialization(model):
         create_NN_model()
     serialize_models_wrappers()
     assert open(Path("models") / (model + '_model.pkl'), "rb")     #check if the serialization created the files
-
+    model_wrappers_list.clear()
 
 
 
