@@ -22,7 +22,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 1,
+  "id": 4,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -69,7 +69,8 @@
         "rowHeight": 0.9,
         "showValue": "auto",
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "pluginVersion": "8.3.2",
@@ -77,7 +78,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "IzxVmRJ7k"
+            "uid": "a0jyzna7k"
           },
           "exemplar": false,
           "expr": "up{job=\"vulcanic-eruption-prediction\"}",
@@ -136,12 +137,12 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.3.3",
+      "pluginVersion": "8.4.0-beta1",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "IzxVmRJ7k"
+            "uid": "a0jyzna7k"
           },
           "exemplar": false,
           "expr": "sum(fastapi_model_http_requests_total{})",
@@ -196,7 +197,8 @@
           "values": false
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "pluginVersion": "8.3.1",
@@ -204,7 +206,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "IzxVmRJ7k"
+            "uid": "a0jyzna7k"
           },
           "exemplar": true,
           "expr": "sum (fastapi_model_http_requests_total{}) by (method)",
@@ -217,38 +219,11 @@
       "type": "piechart"
     },
     {
+      "description": "response time for each api endpoint. Green threshold is 10s",
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
+            "mode": "thresholds"
           },
           "mappings": [],
           "thresholds": {
@@ -260,12 +235,62 @@
               },
               {
                 "color": "red",
-                "value": 80
+                "value": 10
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "{handler=\"/\", instance=\"host.docker.internal:5000\", job=\"vulcanic-eruption-prediction\", method=\"GET\", status=\"2xx\"}"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Home"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "{handler=\"/docs\", instance=\"host.docker.internal:5000\", job=\"vulcanic-eruption-prediction\", method=\"GET\", status=\"2xx\"}"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Docs"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "{handler=\"/models\", instance=\"host.docker.internal:5000\", job=\"vulcanic-eruption-prediction\", method=\"GET\", status=\"2xx\"}"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Models"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "{handler=\"/predict/{model_type}\", instance=\"host.docker.internal:5000\", job=\"vulcanic-eruption-prediction\", method=\"POST\", status=\"2xx\"}"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Predict"
               }
             ]
           }
-        },
-        "overrides": []
+        ]
       },
       "gridPos": {
         "h": 7,
@@ -273,33 +298,38 @@
         "x": 0,
         "y": 7
       },
-      "id": 15,
+      "id": 6,
       "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom"
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
         },
-        "tooltip": {
-          "mode": "single"
-        }
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
       },
-      "pluginVersion": "8.3.1",
+      "pluginVersion": "8.4.0-beta1",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "IzxVmRJ7k"
+            "uid": "a0jyzna7k"
           },
           "exemplar": true,
-          "expr": "sum(rate(fastapi_model_http_requests_total{}[$__interval]))",
-          "interval": "",
-          "legendFormat": "HTTP requests",
+          "expr": "rate(fastapi_model_http_request_duration_seconds_sum{handler=~\"/|/docs|/models|/predict/\\\\{model_type\\\\}\",job=\"vulcanic-eruption-prediction\",status=\"2xx\"}[5m])",
+          "format": "time_series",
+          "hide": false,
+          "interval": "5",
+          "legendFormat": "",
           "refId": "A"
         }
       ],
-      "title": "HTTP requests rate in the last 1m",
-      "type": "timeseries"
+      "title": "Response Time",
+      "transparent": true,
+      "type": "gauge"
     },
     {
       "fieldConfig": {
@@ -343,12 +373,12 @@
         "showThresholdLabels": false,
         "showThresholdMarkers": true
       },
-      "pluginVersion": "8.3.3",
+      "pluginVersion": "8.4.0-beta1",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "IzxVmRJ7k"
+            "uid": "a0jyzna7k"
           },
           "exemplar": true,
           "expr": "sum(fastapi_inprogress)",
@@ -403,12 +433,12 @@
         "showThresholdLabels": false,
         "showThresholdMarkers": true
       },
-      "pluginVersion": "8.3.3",
+      "pluginVersion": "8.4.0-beta1",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "IzxVmRJ7k"
+            "uid": "a0jyzna7k"
           },
           "exemplar": true,
           "expr": "sum(rate(fastapi_model_http_requests_total[1m]))",
@@ -419,71 +449,6 @@
       ],
       "title": "Request rate in the last minute",
       "type": "gauge"
-    },
-    {
-      "description": "Portion of prediction requests directed to each model type.",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            }
-          },
-          "mappings": []
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 12,
-        "x": 0,
-        "y": 14
-      },
-      "id": 4,
-      "options": {
-        "displayLabels": [
-          "percent",
-          "name"
-        ],
-        "legend": {
-          "displayMode": "list",
-          "placement": "right",
-          "values": [
-            "value"
-          ]
-        },
-        "pieType": "pie",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "tooltip": {
-          "mode": "single"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "IzxVmRJ7k"
-          },
-          "exemplar": true,
-          "expr": "fastapi_model_model_output_count",
-          "interval": "",
-          "legendFormat": "{{model_type}}",
-          "refId": "A"
-        }
-      ],
-      "title": "Model Type",
-      "type": "piechart"
     },
     {
       "fieldConfig": {
@@ -524,7 +489,94 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 14
+      },
+      "id": 15,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "8.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "a0jyzna7k"
+          },
+          "exemplar": true,
+          "expr": "sum(rate(fastapi_model_http_requests_total{}[$__interval]))",
+          "interval": "",
+          "legendFormat": "HTTP requests",
+          "refId": "A"
+        }
+      ],
+      "title": "HTTP requests rate in the last 1m",
+      "type": "timeseries"
+    },
+    {
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -549,17 +601,19 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "IzxVmRJ7k"
+            "uid": "a0jyzna7k"
           },
           "exemplar": true,
           "expr": "sum by (handler) (rate(fastapi_model_http_requests_total[1m]))",
+          "hide": false,
           "interval": "",
           "legendFormat": "{{handler}}",
           "refId": "A"
@@ -569,12 +623,78 @@
       "type": "timeseries"
     },
     {
+      "description": "Portion of prediction requests directed to each model type.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 21
+      },
+      "id": 4,
+      "options": {
+        "displayLabels": [
+          "percent",
+          "name"
+        ],
+        "legend": {
+          "displayMode": "list",
+          "placement": "right",
+          "values": [
+            "value"
+          ]
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "a0jyzna7k"
+          },
+          "exemplar": true,
+          "expr": "fastapi_model_model_output_count",
+          "interval": "",
+          "legendFormat": "{{model_type}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Model Type",
+      "type": "piechart"
+    },
+    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 21
+        "y": 28
       },
       "id": 6,
       "panels": [],
@@ -609,7 +729,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 22
+        "y": 29
       },
       "id": 2,
       "options": {
@@ -624,12 +744,12 @@
         },
         "showUnfilled": true
       },
-      "pluginVersion": "8.3.3",
+      "pluginVersion": "8.4.0-beta1",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "IzxVmRJ7k"
+            "uid": "a0jyzna7k"
           },
           "exemplar": false,
           "expr": "fastapi_model_model_output_bucket{model_type=\"LGBMRegressor\"}",
@@ -671,7 +791,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 22
+        "y": 29
       },
       "id": 7,
       "options": {
@@ -686,12 +806,12 @@
         },
         "showUnfilled": true
       },
-      "pluginVersion": "8.3.3",
+      "pluginVersion": "8.4.0-beta1",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "IzxVmRJ7k"
+            "uid": "a0jyzna7k"
           },
           "exemplar": false,
           "expr": "fastapi_model_model_output_bucket{model_type=\"XGBRegressor\"}",
@@ -733,7 +853,7 @@
         "h": 8,
         "w": 12,
         "x": 6,
-        "y": 30
+        "y": 37
       },
       "id": 8,
       "options": {
@@ -748,12 +868,12 @@
         },
         "showUnfilled": true
       },
-      "pluginVersion": "8.3.3",
+      "pluginVersion": "8.4.0-beta1",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "IzxVmRJ7k"
+            "uid": "a0jyzna7k"
           },
           "exemplar": false,
           "expr": "fastapi_model_model_output_bucket{model_type=\"Neural_Network\"}",
@@ -769,7 +889,7 @@
     }
   ],
   "refresh": "5s",
-  "schemaVersion": 34,
+  "schemaVersion": 35,
   "style": "dark",
   "tags": [],
   "templating": {
@@ -782,7 +902,7 @@
   "timepicker": {},
   "timezone": "",
   "title": "Grafana Dashboard",
-  "uid": "H4Tq0-2nz",
-  "version": 35,
+  "uid": "H4Tq0-2nz2",
+  "version": 4,
   "weekStart": ""
 }
