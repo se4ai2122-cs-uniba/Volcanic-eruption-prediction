@@ -36,7 +36,7 @@ def bad_csv():                                   #factory function which return 
 #support function for the test of /predict endpoint 
 @pytest.fixture
 def get_test_csv():
-    test_folder_path = os.path.join(os.getcwd(), 'data', 'raw', 'predict-volcanic-eruptions_dataset', 'test')
+    test_folder_path = os.path.join(os.getcwd(), 'data', 'raw', 'predict-volcanic-eruptions_dataset', 'reduced_test')
     csv = os.listdir(test_folder_path)                  #all csv names in the 'test' folder
     test_file_path = test_folder_path + os.sep + random.choice(csv)
     file = [('file', (test_file_path, open(test_file_path, 'rb'), 'application/vnd.ms-excel'))]
