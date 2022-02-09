@@ -12,7 +12,7 @@ on:
 jobs:                    
   test:
     name: Test with pytest
-    runs-on: windows-latest     #Actions are JavaScript files or Docker containers. If is a Docker container you must run the job in a Linux virtual environment.
+    runs-on: ubuntu-latest     #Actions are JavaScript files or Docker containers. If is a Docker container you must run the job in a Linux virtual environment.
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -29,9 +29,9 @@ jobs:
         env:
           GDRIVE_CREDENTIALS_DATA: ${{ secrets.GDRIVE_CREDENTIALS }}
         run: |
-             dvc pull data/processed
-             dvc pull models
-             dvc pull data/raw/predict-volcanic-eruptions_dataset/test
+             dvc pull -v data/processed
+             dvc pull -v models
+             dvc pull -v data/raw/predict-volcanic-eruptions_dataset/test 
       - name: Test with pytest 
         run: |
           pytest -m training 
