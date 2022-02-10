@@ -31,8 +31,8 @@ jobs:
         run: |
              dvc pull data/processed
              dvc pull models
-             dvc pull --glob data/raw/predict-volcanic-eruptions_dataset/train/*1234*
-             dvc pull --glob data/raw/predict-volcanic-eruptions_dataset/test/*3456*  
+             dvc pull data/raw/predict-volcanic-eruptions_dataset/train/513181.csv
+             dvc pull data/raw/predict-volcanic-eruptions_dataset/test/860288.csv  
       - name: Test with pytest 
         run: |
           pytest -m training 
