@@ -31,11 +31,11 @@ jobs:
         run: |
              dvc pull data/processed
              dvc pull models
+             dvc pull data/raw/predict-volcanic-eruptions_dataset/sample_submission.csv
              dvc pull data/raw/predict-volcanic-eruptions_dataset/train/513181.csv
-             dvc pull data/raw/predict-volcanic-eruptions_dataset/test/860288.csv  
+             dvc pull data/raw/predict-volcanic-eruptions_dataset/test/860288.csv              
       - name: Test with pytest 
         run: |
-          pytest -m training 
-          pytest -m evaluation 
-          pytest -m api
+          pytest -m "training or evaluation or api"
+        
           
