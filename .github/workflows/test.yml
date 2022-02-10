@@ -26,12 +26,13 @@ jobs:
           pip install -r ./requirements.txt
           pip install dvc[gdrive]
       - name: DVC pull
-        env:
+        env: 
           GDRIVE_CREDENTIALS_DATA: ${{ secrets.GDRIVE_CREDENTIALS }}
         run: |
-             dvc pull -v data/processed
-             dvc pull -v models
-             dvc pull -v data/raw/predict-volcanic-eruptions_dataset/reduced_test 
+             dvc pull data/processed
+             dvc pull models
+             dvc pull -v --glob data/raw/predict-volcanic-eruptions_dataset/train/123*
+             dvc pull -v --glob data/raw/predict-volcanic-eruptions_dataset/test/123*  
       - name: Test with pytest 
         run: |
           pytest -m training 
