@@ -4,12 +4,12 @@ stages:
     cmd: python src/prepare.py
     deps:
     - path: data/raw/predict-volcanic-eruptions_dataset
-      md5: e02ae965a33767759c3de22faa1023dc.dir
-      size: 31248305674
-      nfiles: 8953
+      md5: 12419d8c2b5a649d8fec65d60fa8ba02.dir
+      size: 31496995593
+      nfiles: 9027
     - path: src/prepare.py
-      md5: 9b48610d870854b9a5e8d4d61519e630
-      size: 11138
+      md5: 6b224865391f7e522c4a08db0e8a4c9e
+      size: 13555
     params:
       params.yaml:
         prepare.random_state: 42
@@ -30,8 +30,8 @@ stages:
       md5: c7d68c80c2c49d622e44bf9743f0fac3
       size: 34557
     - path: src/train.py
-      md5: be9dae5e80ae2138c2571564dc0a94bf
-      size: 5583
+      md5: 3c1c511e9f0f079c183d239ba712e111
+      size: 5948
     params:
       params.yaml:
         train:
@@ -49,7 +49,7 @@ stages:
           learning_rate: 0.01
     outs:
     - path: models
-      md5: d82a9d52fa3bb9649d0584e2a4a6d7c4.dir
+      md5: bec4cf73588e73cabcc2d82deb4a365a.dir
       size: 2598745
       nfiles: 4
   evaluate:
@@ -62,12 +62,12 @@ stages:
       md5: ea7642467b641e95a1262f643140956c
       size: 8671
     - path: models
-      md5: d82a9d52fa3bb9649d0584e2a4a6d7c4.dir
+      md5: bec4cf73588e73cabcc2d82deb4a365a.dir
       size: 2598745
       nfiles: 4
     - path: src/evaluate.py
-      md5: eba69cb848604b6676e38268430d28cc
-      size: 1986
+      md5: 459152cd171c8cd9fa39267f218fffe5
+      size: 2466
     params:
       params.yaml:
         evaluate:

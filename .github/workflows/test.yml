@@ -9,31 +9,10 @@ on:
 
   workflow_dispatch:
   
-jobs:                  
-
-  data-quality-assurance:
-    name: Data quality assurance
-    runs-on: windows-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-      - name: Set up Python 3.9
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.9
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r ./requirements.txt
-      - name: DVC PULL
-        run: |
-          dvc pull
-      - name: Validating data with Great Expectations
-        run: python tests/data_validation/data_validation.py    
-
+jobs:                    
   test:
     name: Test with pytest
-    runs-on: windows-latest
+    runs-on: windows-latest     #Actions are JavaScript files or Docker containers. If is a Docker container you must run the job in a Linux virtual environment.
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -45,14 +24,17 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r ./requirements.txt
-      - name: DVC PULL
+          pip install dvc[gdrive]
+      - name: DVC pull
+        env: 
+          GDRIVE_CREDENTIALS_DATA: ${{ secrets.GDRIVE_CREDENTIALS }}
         run: |
-          dvc pull
-      - name: Test with pytest tests/app fold
-        run: |
-          cd tests/app
-          pytest -v
-      - name: Test with pytest tests/src_tests fold
-        run: |
-          cd tests/src_tests
-          pytest -v
+             dvc pull data/processed
+             dvc pull models
+             dvc pull data/raw/predict-volcanic-eruptions_dataset/sample_submission.csv
+             dvc pull data/raw/predict-volcanic-eruptions_dataset/test/860288.csv              
+      - name: Test with pytest and coverage report
+        run: pytest --cov=src --cov=app tests/ -m "training or evaluation or api" --cov-report=xml
+      - name: Codecov
+        uses: codecov/codecov-action@v2.1.0
+          
