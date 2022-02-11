@@ -34,7 +34,7 @@ function Models() {
             <VStack>
                 <Button
                     size="md"
-                    colorScheme='teal'
+                    colorScheme='orange'
                     variant='solid'
                     onClick={updateModels}>
                     Get Models List

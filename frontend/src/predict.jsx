@@ -8,7 +8,7 @@ import {
     Heading
 } from '@chakra-ui/react'
 
-const Endpoint = 'http://localhost:5000/models/'
+const Endpoint = 'http://localhost:5000/predict/'
 const PredictContext = React.createContext(null)
 
 function Predict() {
@@ -26,9 +26,8 @@ function Predict() {
             params: {
                 type
             },
-            responseType: 'blob'
         }).then(response => {
-            setPrediction(response.headers.model_prediction)
+            setPrediction(response.data.data)
             setFile(response.data)
         })
     }
@@ -46,7 +45,7 @@ function Predict() {
                     <Button
                         type='submit'
                         size="md"
-                        colorScheme='teal'
+                        colorScheme='orange'
                         variant='solid'>
                         Make Prediction
                     </Button>
@@ -57,7 +56,7 @@ function Predict() {
             <PredictContext.Provider value={{prediction}}>
                 {
                     prediction ?
-                        <Heading as='h4' size='md' color='red.700' >{"Next volcano's eruption predicted in: " + JSON.stringify(prediction) + " days"}</Heading>
+                        <Heading as='h4' size='md' color='red.700' >{"Next volcano's eruption predicted in: " + JSON.stringify(prediction.prediction.eruption_time)}</Heading>
                     :
                         null
                 }
