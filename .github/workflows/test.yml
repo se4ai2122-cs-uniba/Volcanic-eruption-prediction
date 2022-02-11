@@ -32,10 +32,9 @@ jobs:
              dvc pull data/processed
              dvc pull models
              dvc pull data/raw/predict-volcanic-eruptions_dataset/sample_submission.csv
-             dvc pull data/raw/predict-volcanic-eruptions_dataset/train/513181.csv
              dvc pull data/raw/predict-volcanic-eruptions_dataset/test/860288.csv              
-      - name: Test with pytest 
-        run: |
-          pytest -m "training or evaluation or api"
-        
+      - name: Test with pytest and coverage report
+        run: pytest --cov=src --cov=app tests/ -m "training or evaluation or api" --cov-report=xml
+      - name: Codecov
+        uses: codecov/codecov-action@v2.1.0
           
