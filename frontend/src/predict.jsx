@@ -31,7 +31,6 @@ function Predict() {
             setPrediction(response.data.data)
             setFile(response.data)
             setMessage(response.data)
-            console.log(response.data)
             if((response.data.message)==("OK")){
                 setMessage(response.data.message="")}
         })
