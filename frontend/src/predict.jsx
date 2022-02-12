@@ -14,6 +14,7 @@ const PredictContext = React.createContext(null)
 function Predict() {
     const [file, setFile] = React.useState(null)
     const [prediction, setPrediction] = React.useState(null)
+    const [message, setMessage] = React.useState(null)
     const handleSubmit = (e) => {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
@@ -29,6 +30,10 @@ function Predict() {
         }).then(response => {
             setPrediction(response.data.data)
             setFile(response.data)
+            setMessage(response.data)
+            console.log(response.data)
+            if((response.data.message)==("OK")){
+                setMessage(response.data.message="")}
         })
     }
 
@@ -53,6 +58,14 @@ function Predict() {
             </form>
             <br />
             <br />
+            <PredictContext.Provider value={{message}}>
+                {
+                    message ?
+                        <Heading as='h4' size='md' color='red.700' >{JSON.stringify(message.message)}</Heading>
+                    :
+                        null
+                }
+            </PredictContext.Provider>
             <PredictContext.Provider value={{prediction}}>
                 {
                     prediction ?
@@ -62,13 +75,7 @@ function Predict() {
                 }
             </PredictContext.Provider>
         </VStack>
-    )
-
-
-
-   
-
-    
+    ) 
 }
 
 export default Predict
