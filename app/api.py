@@ -16,7 +16,6 @@ from app.schemas import TimeToErupt, get_api_info
 from src.prepare import build_features
 from pydantic import ValidationError
 from app.monitoring import instrumentator
-from fastapi.middleware.cors import CORSMiddleware
 
 description = """VEP API allows you to know the predicted time of a volcano eruption starting from a csv of sensors relevations about that volcano
 ## Users
@@ -27,7 +26,6 @@ You will be able to:
 [Davide De Simone](https://github.com/Davide-Ds) <br>
 [Giuseppe Gallone](https://github.com/giusegal) <br> 
 """
-
 
 #automatically start the server when this script is runned
 if __name__ == '__main__':
@@ -49,14 +47,6 @@ app = FastAPI(
     title="Volcanic Eruption Prediction",
     description=description,
     version="0.1",
-)
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
 )
 
 @app.on_event("startup")         #to fix a bug when starting uvicorn by running directly this script. See https://github.com/trallnag/prometheus-fastapi-instrumentator/issues/80
@@ -224,4 +214,4 @@ def check_input_file(file: UploadFile):
            raise HTTPException(status_code=422, detail=f"The loaded csv contain column {col} which is not numeric, please upload a csv with only numeric columns")
         col+=1
 
-    return csv_file      
+    return csv_file    
