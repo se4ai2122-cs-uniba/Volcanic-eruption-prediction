@@ -1,3 +1,4 @@
+import sys
 import numpy as np
 import pandas as pd
 import glob
@@ -38,10 +39,7 @@ def process_dataset():
             sample_submission = pd.read_csv(sample_submission_path)
 
             train_frags = glob.glob(train_files_path)   #crea un array dove in ogni posizione c'è il percorso di un .csv della cartella 'train'
-            print(len(train_frags))
-
-            test_frags = glob.glob(test_files_path)
-            print(len(test_frags))
+            print("num train csv: ", len(train_frags))
 
             #Let's check number of observations and number of sensors for every sample in train directory.
             sensors = set()
@@ -79,41 +77,6 @@ def process_dataset():
             )
 
             train = pd.merge(train, missing_sensors_train)   #colonne di 'missing_sensors_train' + 'time_to_eruption'
-
-            #Let's do the same for test set.
-            sensors = set()
-            observations = set()
-            nan_columns = list()
-            missed_groups = list()
-            missing_sensors_test = list()
-
-            for item in test_frags:
-                name = int(item.split('.')[-2].split(separator)[-1])
-                at_least_one_missed = 0
-                frag = pd.read_csv(item)
-                missed_group = list()
-                missed_percents = list()
-                for col in frag.columns:
-                    missed_percents.append(frag[col].isnull().sum() / len(frag))
-                    if pd.isnull(frag[col]).all() == True:
-                        at_least_one_missed = 1
-                        nan_columns.append(col)
-                        missed_group.append(col)
-                if len(missed_group) > 0:
-                    missed_groups.append(missed_group)
-                sensors.add(len(frag.columns))
-                observations.add(len(frag))
-                missing_sensors_test.append([name, at_least_one_missed] + missed_percents)
-
-            missing_sensors_test = pd.DataFrame(
-                missing_sensors_test, 
-                columns=[
-                    'segment_id', 'has_missed_sensors', 'missed_percent_sensor1', 'missed_percent_sensor2', 'missed_percent_sensor3', 
-                    'missed_percent_sensor4', 'missed_percent_sensor5', 'missed_percent_sensor6', 'missed_percent_sensor7', 
-                    'missed_percent_sensor8', 'missed_percent_sensor9', 'missed_percent_sensor10'
-                ]
-            )
-
             train_set = list()
             j=0
             for seg in train.segment_id:         #trasforma ogni csv(60k righe, 10 colonne) in una riga con 243 features, calcolando delle statistiche su ogni colonna del csv
@@ -129,7 +92,6 @@ def process_dataset():
                 j+=1
 
             train_set = pd.concat(train_set)
-
             train_set = train_set.reset_index() #reset index of the dataframe object to default indexing (0 to number of rows minus 1), the original index gets converted to a column
             train_set = train_set.rename(columns={'index': 'segment_id'})
             train_set = pd.merge(train_set, train, on='segment_id')
@@ -180,30 +142,65 @@ def process_dataset():
             print("Writing file {} to disk.".format(y_val_path))
             reduced_y_val.to_csv(y_val_path, index=False)
 
-            test_set = list()
-            j=0
-            for seg in sample_submission.segment_id:
-                signals = pd.read_csv(test_folder_path +separator+ f'{seg}.csv')
-                test_row = []
-                if j%500 == 0:
-                    print('test files processed:' + f'{j}')
-                for i in range(0, 10):
-                    sensor_id = f'sensor_{i+1}'
-                    test_row.append(build_features(signals[sensor_id].fillna(0), seg, sensor_id))
-                test_row = pd.concat(test_row, axis=1)
-                test_set.append(test_row)
-                j+=1
-            test_set = pd.concat(test_set)
+            if (len(sys.argv) > 1 and sys.argv[1].lower() == 'true'):        #process the test set
+                test_frags = glob.glob(test_files_path)
+                print("num test csv: ", len(test_frags))
+                sensors = set()
+                observations = set()
+                nan_columns = list()
+                missed_groups = list()
+                missing_sensors_test = list()
 
-            test_set = test_set.reset_index()
-            test_set = test_set.rename(columns={'index': 'segment_id'})
-            test_set = pd.merge(test_set, missing_sensors_test, on='segment_id')
-            test = test_set.drop(['segment_id'], axis=1)
-            reduced_test = test.copy()
-            reduced_test = reduced_test.drop(drop_cols, axis=1)
+                for item in test_frags:
+                    name = int(item.split('.')[-2].split(separator)[-1])
+                    at_least_one_missed = 0
+                    frag = pd.read_csv(item)
+                    missed_group = list()
+                    missed_percents = list()
+                    for col in frag.columns:
+                        missed_percents.append(frag[col].isnull().sum() / len(frag))
+                        if pd.isnull(frag[col]).all() == True:
+                            at_least_one_missed = 1
+                            nan_columns.append(col)
+                            missed_group.append(col)
+                    if len(missed_group) > 0:
+                        missed_groups.append(missed_group)
+                    sensors.add(len(frag.columns))
+                    observations.add(len(frag))
+                    missing_sensors_test.append([name, at_least_one_missed] + missed_percents)
 
-            print("Writing file {} to disk.".format(proc_test_set_path))
-            reduced_test.to_csv(proc_test_set_path, index=False)      #non possiamo calcolare l'errore sul test set perchè mancano i valori della variabile target dato che il codice è preso da una challenge su kaggle
+                missing_sensors_test = pd.DataFrame(
+                    missing_sensors_test, 
+                    columns=[
+                        'segment_id', 'has_missed_sensors', 'missed_percent_sensor1', 'missed_percent_sensor2', 'missed_percent_sensor3', 
+                        'missed_percent_sensor4', 'missed_percent_sensor5', 'missed_percent_sensor6', 'missed_percent_sensor7', 
+                        'missed_percent_sensor8', 'missed_percent_sensor9', 'missed_percent_sensor10'
+                    ]
+                )
+
+                test_set = list()
+                j=0
+                for seg in sample_submission.segment_id:
+                    signals = pd.read_csv(test_folder_path +separator+ f'{seg}.csv')
+                    test_row = []
+                    if j%500 == 0:
+                        print('test files processed:' + f'{j}')
+                    for i in range(0, 10):
+                        sensor_id = f'sensor_{i+1}'
+                        test_row.append(build_features(signals[sensor_id].fillna(0), seg, sensor_id))
+                    test_row = pd.concat(test_row, axis=1)
+                    test_set.append(test_row)
+                    j+=1
+                test_set = pd.concat(test_set)
+                test_set = test_set.reset_index()
+                test_set = test_set.rename(columns={'index': 'segment_id'})
+                test_set = pd.merge(test_set, missing_sensors_test, on='segment_id')
+                test = test_set.drop(['segment_id'], axis=1)
+                reduced_test = test.copy()
+                reduced_test = reduced_test.drop(drop_cols, axis=1)
+
+                print("Writing file {} to disk.".format(proc_test_set_path))
+                reduced_test.to_csv(proc_test_set_path, index=False)      #non possiamo calcolare l'errore sul test set perchè mancano i valori della variabile target dato che il codice è preso da una challenge su kaggle
 
 
 
