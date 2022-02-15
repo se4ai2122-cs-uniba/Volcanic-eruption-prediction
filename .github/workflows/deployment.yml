@@ -1,0 +1,58 @@
+name: Deployment
+on: 
+  push:
+    branches:
+      - main
+
+  workflow_dispatch:
+  
+jobs:                    
+  test:
+    name: get data from dvc
+    runs-on: windows-latest     #Actions are JavaScript files or Docker containers. If is a Docker container you must run the job in a Linux virtual environment.
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r ./requirements.txt
+          pip install dvc[gdrive]
+      - name: DVC pull
+        env: 
+          GDRIVE_CREDENTIALS_DATA: ${{ secrets.GDRIVE_CREDENTIALS }}
+        run: |
+             dvc pull data/processed
+             dvc pull models
+  deploy:
+    name: Deploying 
+    runs-on: windows-latest 
+    #if: "contains(github.event.head_commit.message, 'make deployment')"
+    steps:
+      # Build and push image to Google Container Registry
+      - name: Setting up
+        uses: google-github-actions/setup-gcloud@v0
+        with:
+          version: '286.0.0'
+          service_account_key: ${{ secrets.GCP_SA_KEY_JSON }}
+          #service_account_email: "YOUR_EMAIL"
+          project_id: vulcanic-eruption-prediction
+
+      - name: Building (🏗)
+        run: |-
+          gcloud builds submit \
+            --tag gcr.io/vulcanic-eruption-prediction/vep-backend
+
+      # Setup gcloud CLI
+      - name: Deploy (🚀)
+        uses: google-github-actions/deploy-cloudrun@v0
+        with:
+          service: vep-backend
+          image: gcr.io/vulcanic-eruption-prediction/vep-backend
+          region: europe-west1
+          credentials: ${{ secrets.GCP_SA_KEY_JSON }}
+          project_id: vulcanic-eruption-prediction
