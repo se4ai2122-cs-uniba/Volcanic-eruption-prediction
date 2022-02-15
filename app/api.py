@@ -16,6 +16,7 @@ from app.schemas import TimeToErupt, get_api_info
 from src.prepare import build_features
 from pydantic import ValidationError
 from app.monitoring import instrumentator
+from fastapi.middleware.cors import CORSMiddleware
 
 description = """VEP API allows you to know the predicted time of a volcano eruption starting from a csv of sensors relevations about that volcano
 ## Users
@@ -47,6 +48,14 @@ app = FastAPI(
     title="Volcanic Eruption Prediction",
     description=description,
     version="0.1",
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 @app.on_event("startup")         #to fix a bug when starting uvicorn by running directly this script. See https://github.com/trallnag/prometheus-fastapi-instrumentator/issues/80
