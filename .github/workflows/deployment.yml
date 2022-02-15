@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
   
 jobs:                    
-  test:
+  get_data:
     name: get data from dvc
     runs-on: windows-latest     #Actions are JavaScript files or Docker containers. If is a Docker container you must run the job in a Linux virtual environment.
     steps:
@@ -30,7 +30,9 @@ jobs:
              dvc pull models
   deploy:
     name: Deploying 
-    runs-on: windows-latest 
+    runs-on: windows-latest
+    needs:
+      - get_data 
     #if: "contains(github.event.head_commit.message, 'make deployment')"
     steps:
       # Build and push image to Google Container Registry
@@ -43,9 +45,7 @@ jobs:
           project_id: vulcanic-eruption-prediction
 
       - name: Building (🏗)
-        run: |-
-          gcloud builds submit \
-            --tag gcr.io/vulcanic-eruption-prediction/vep-backend
+        run: gcloud builds submit --tag gcr.io/vulcanic-eruption-prediction/vep-backend
 
       # Setup gcloud CLI
       - name: Deploy (🚀)
