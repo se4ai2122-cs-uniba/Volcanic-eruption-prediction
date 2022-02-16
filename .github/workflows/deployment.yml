@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
   
 jobs:                    
-  get_data:
+  deploy_container:
     name: get data from dvc
     runs-on: windows-latest     #Actions are JavaScript files or Docker containers. If is a Docker container you must run the job in a Linux virtual environment.
     steps:
@@ -28,14 +28,9 @@ jobs:
         run: |
              dvc pull data/processed
              dvc pull models
-  deploy:
-    name: Deploying 
-    runs-on: windows-latest
-    needs:
-      - get_data 
-    #if: "contains(github.event.head_commit.message, 'make deployment')"
-    steps:
-      - id: 'auth'
+      
+      #if: "contains(github.event.head_commit.message, 'make deployment')"
+      - name: 'gcp auth'
         uses: 'google-github-actions/auth@v0'
         with:
          credentials_json: '${{ secrets.GCP_SA_KEY_JSON }}'
