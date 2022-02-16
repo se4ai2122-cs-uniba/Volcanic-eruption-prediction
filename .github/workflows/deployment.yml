@@ -26,9 +26,12 @@ jobs:
         env: 
           GDRIVE_CREDENTIALS_DATA: ${{ secrets.GDRIVE_CREDENTIALS }}
         run: |
-             dvc pull data/processed
-             dvc pull models
-      
+             dvc pull data/processed/processed_validation_set.csv
+             dvc pull models/LGBMRegressor_model.pkl
+             dvc pull models/Neural_Network.h5
+             dvc pull models/Neural_Network_model.pkl
+             dvc pull models/XGBRegressor_model.pkl
+
       #if: "contains(github.event.head_commit.message, 'make deployment')"
       - name: 'google cloud platform auth'
         uses: 'google-github-actions/auth@v0'
@@ -51,5 +54,4 @@ jobs:
           service: backend
           image: gcr.io/vulcanic-eruption-prediction/backend
           region: europe-west1
-          credentials: ${{ secrets.GCP_SA_KEY_JSON }}
           project_id: vulcanic-eruption-prediction
