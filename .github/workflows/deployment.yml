@@ -8,7 +8,7 @@ on:
   
 jobs:                    
   deploy_container:
-    name: get data from dvc
+    name: Deploy container
     runs-on: windows-latest     #Actions are JavaScript files or Docker containers. If is a Docker container you must run the job in a Linux virtual environment.
     steps:
       - name: Checkout repository
@@ -30,26 +30,26 @@ jobs:
              dvc pull models
       
       #if: "contains(github.event.head_commit.message, 'make deployment')"
-      - name: 'gcp auth'
+      - name: 'google cloud platform auth'
         uses: 'google-github-actions/auth@v0'
         with:
          credentials_json: '${{ secrets.GCP_SA_KEY_JSON }}'
      
       # Build and push image to Google Container Registry
-      - name: Setting up
+      - name: Set up gcp
         uses: google-github-actions/setup-gcloud@v0
         with:
           project_id: vulcanic-eruption-prediction
 
       - name: Building   #Cloud Build will run a remote "docker build -t $TAG 
-        run: gcloud builds submit --tag gcr.io/vulcanic-eruption-prediction/davideds97/volcanic-eruption-prediction:$GITHUB_SHA
+        run: gcloud builds submit --tag gcr.io/vulcanic-eruption-prediction/backend
 
       # Setup gcloud CLI
       - name: Deploy
         uses: google-github-actions/deploy-cloudrun@v0
         with:
           service: backend
-          image: gcr.io/vulcanic-eruption-prediction/davideds97/volcanic-eruption-prediction:$GITHUB_SHA
+          image: gcr.io/vulcanic-eruption-prediction/backend
           region: europe-west1
           credentials: ${{ secrets.GCP_SA_KEY_JSON }}
           project_id: vulcanic-eruption-prediction
