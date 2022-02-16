@@ -1,8 +1,8 @@
 import os
-from typing import Callable
 from prometheus_client import Histogram
 from prometheus_fastapi_instrumentator import Instrumentator, metrics
 from prometheus_fastapi_instrumentator.metrics import Info
+from typing import Callable
 
 NAMESPACE = os.environ.get("METRICS_NAMESPACE", "fastapi")
 SUBSYSTEM = os.environ.get("METRICS_SUBSYSTEM", "model")
@@ -14,7 +14,7 @@ instrumentator = Instrumentator(
     excluded_handlers=["/metrics"],
     inprogress_name="fastapi_inprogress",
     inprogress_labels=True,
-) 
+)
 
 # ----- add metrics -----
 
@@ -87,6 +87,5 @@ def model_output(
                 METRIC.labels(model_type).observe(float(predicted_eruption))
 
     return instrumentation
-
 
 instrumentator.add(model_output(metric_namespace=NAMESPACE, metric_subsystem=SUBSYSTEM))
