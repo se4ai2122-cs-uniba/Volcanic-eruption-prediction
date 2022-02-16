@@ -35,24 +35,26 @@ jobs:
       - get_data 
     #if: "contains(github.event.head_commit.message, 'make deployment')"
     steps:
+      - id: 'auth'
+        uses: 'google-github-actions/auth@v0'
+        with:
+         credentials_json: '${{ secrets.GCP_SA_KEY_JSON }}'
+     
       # Build and push image to Google Container Registry
       - name: Setting up
         uses: google-github-actions/setup-gcloud@v0
         with:
-          version: '286.0.0'
-          service_account_key: ${{ secrets.GCP_SA_KEY_JSON }}
-          #service_account_email: "YOUR_EMAIL"
           project_id: vulcanic-eruption-prediction
 
-      - name: Building (🏗)
-        run: gcloud builds submit --tag gcr.io/vulcanic-eruption-prediction/vep-backend
+      - name: Building   #Cloud Build will run a remote "docker build -t $TAG 
+        run: gcloud builds submit --tag gcr.io/vulcanic-eruption-prediction/davideds97/volcanic-eruption-prediction:$GITHUB_SHA
 
       # Setup gcloud CLI
-      - name: Deploy (🚀)
+      - name: Deploy
         uses: google-github-actions/deploy-cloudrun@v0
         with:
-          service: vep-backend
-          image: gcr.io/vulcanic-eruption-prediction/vep-backend
+          service: backend
+          image: gcr.io/vulcanic-eruption-prediction/davideds97/volcanic-eruption-prediction:$GITHUB_SHA
           region: europe-west1
           credentials: ${{ secrets.GCP_SA_KEY_JSON }}
           project_id: vulcanic-eruption-prediction
