@@ -8,7 +8,7 @@ import {
     Heading
 } from '@chakra-ui/react'
 
-const Endpoint = 'http://localhost:5000/predict/'
+const Endpoint = 'https://backend-qdc5brb42q-ew.a.run.app/predict/'
 const PredictContext = React.createContext(null)
 
 function Predict() {
@@ -22,8 +22,11 @@ function Predict() {
         formData.delete('type');
         axios.post(Endpoint + type, formData, {
             headers: {
-                'Content-Type': 'multipart/form-data'
-            },
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, POST, PATCH, PUT, DELETE, OPTIONS',
+                'Access-Control-Allow-Headers': 'Origin, Content-Type, X-Auth-Token'},
             params: {
                 type
             },

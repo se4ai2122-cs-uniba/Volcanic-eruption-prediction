@@ -8,7 +8,7 @@ import {
    
 } from '@chakra-ui/react'
 
-const Endpoint = 'http://localhost:5000/'
+const Endpoint = 'https://backend-qdc5brb42q-ew.a.run.app/'
 const ModelsContext = React.createContext([])
 
 function Models() {
@@ -18,11 +18,15 @@ function Models() {
             url: Endpoint + 'models',
             method: 'get',
             headers: {
-                Accept: 'application/json'
-            }
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, POST, PATCH, PUT, DELETE, OPTIONS',
+                'Access-Control-Allow-Headers': 'Origin, Content-Type, X-Auth-Token'}      
         })
         .then(function(response) {
             setModels(response.data.data)
+            console.log(data)
         })
         .catch(function(error) {
             console.log(error)

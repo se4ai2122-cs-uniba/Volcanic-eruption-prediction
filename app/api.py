@@ -155,7 +155,7 @@ def _predict(request: Request, response:Response, model_type: str, file: UploadF
             },
         }
         response.headers["X-model-type"]=model_type
-        response.headers["X-model-prediction"]= str(int(pred)) 
+        response.headers["X-model-prediction"]= str(pred) 
     else:
         response_payload = {
             "message": "Model not found, please choose a model available in the models list",
