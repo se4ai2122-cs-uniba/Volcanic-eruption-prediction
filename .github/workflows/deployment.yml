@@ -2,14 +2,15 @@ name: Deployment
 on: 
   push:
     branches:
-      - main
-    
-  workflow_dispatch:
-#if: "contains(github.event.head_commit.message, 'make deployment')" 
+      - main   
+  workflow_dispatch: 
+
 jobs:                    
   deploy_backend_container:
     name: Deploy backend container
-    runs-on: windows-latest     #Actions are JavaScript files or Docker containers. If is a Docker container you must run the job in a Linux virtual environment.
+    #run the job only if there is a specific commit message
+    if: github.event_name=='workflow_dispatch' || contains(github.event.head_commit.message, 'deploy backend') || contains(github.event.head_commit.message, 'deploy all')  
+    runs-on: ubuntu-latest     #Actions are JavaScript files or Docker containers. If is a Docker container you must run the job in a Linux virtual environment.
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -53,7 +54,8 @@ jobs:
 
   deploy_frontend_container:
     name: Deploy frontend container
-    runs-on: windows-latest     #Actions are JavaScript files or Docker containers. If is a Docker container you must run the job in a Linux virtual environment.
+    if: github.event_name=='workflow_dispatch' || contains(github.event.head_commit.message, 'deploy frontend') || contains(github.event.head_commit.message, 'deploy all')
+    runs-on: ubuntu-latest     
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
