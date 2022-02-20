@@ -76,3 +76,29 @@ stages:
     - path: metrics/scores.json
       md5: 2f3684f510f54e80fb13ab1c85979c8f
       size: 35
+  data_validation:
+    cmd: python tests/data_validation/data_validation.py
+    deps:
+    - path: data/processed
+      md5: 2920f30d705df5ea58efe79bee901a92.dir
+      size: 4874855
+      nfiles: 4
+    - path: data/raw/predict-volcanic-eruptions_dataset
+      md5: e02ae965a33767759c3de22faa1023dc.dir
+      size: 31248305674
+      nfiles: 8953
+  test:
+    cmd: pytest
+    deps:
+    - path: app/api.py
+      md5: e743a602aad05b7d0a8c7cce6d478707
+      size: 9501
+    - path: src/evaluate.py
+      md5: 459152cd171c8cd9fa39267f218fffe5
+      size: 2466
+    - path: src/prepare.py
+      md5: 6d822b40cfbcdb16f6f00c8876d55df2
+      size: 13866
+    - path: src/train.py
+      md5: 3c1c511e9f0f079c183d239ba712e111
+      size: 5948

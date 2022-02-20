@@ -43,7 +43,6 @@ jobs:
       - name: Building   #Cloud Build will run a remote "docker build -t $TAG 
         run: gcloud builds submit --tag gcr.io/vulcanic-eruption-prediction/backend
 
-      # Setup gcloud CLI
       - name: Deploy
         uses: google-github-actions/deploy-cloudrun@v0
         with:
@@ -72,9 +71,8 @@ jobs:
           project_id: vulcanic-eruption-prediction
 
       - name: Building   #Cloud Build will run a remote "docker build -t $TAG 
-        run: gcloud builds submit --tag gcr.io/vulcanic-eruption-prediction/frontend_github_action ./frontend
+        run: gcloud builds submit --tag gcr.io/vulcanic-eruption-prediction/frontend_github_action ./frontend   #./frontend= path to the frontend docker image in the repo
 
-      # Setup gcloud CLI
       - name: Deploy
         uses: google-github-actions/deploy-cloudrun@v0
         with:

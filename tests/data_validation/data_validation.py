@@ -46,7 +46,7 @@ all_columns_proc_train_val_test = ['sensor_1_sum','sensor_1_mean','sensor_1_std'
 reducted_features = pd.read_csv(Path("data/processed") / "processed_validation_set.csv", nrows=1).columns.tolist()  #output of the feature selection
 
 #data validation using great expectation, write all results on a file
-def validate_data(file_path, expected_columns, columns_types, processed_dataset = False):
+def validate_data(file_path, expected_columns, columns_types, processed_dataset = False, file_write_mode = 'a'):
     results = {}
     for filename in glob.glob(file_path):               #glob return a list of paths 
         frame = pd.read_csv(filename, index_col=None, header=0)       #header=0 so the first row can be assigned as the column names
@@ -63,13 +63,13 @@ def validate_data(file_path, expected_columns, columns_types, processed_dataset 
             results[filename].append(df.expect_column_values_to_not_be_null(column=col))
             results[filename].append(df.expect_column_values_to_be_in_type_list(column=col, type_list= columns_types))
 
-    with open(Path('tests/data_validation')/'validation_output.txt', 'a') as f:
+    with open(Path('tests/data_validation')/'validation_output.txt', file_write_mode) as f:
         f.write('\n\n'+ 'Analysis date: '+ str(datetime.datetime.now())+'\n\n'+ str(results))
        
     return print('results written in the file: tests/data_validation/validation_output.txt' )
 
 #validate all 4k csv in train e test folder
-validate_data(train_files_path, expected_columns_train_test, ['float'])    #8 minutes to validate all the 4k csv
+validate_data(train_files_path, expected_columns_train_test, ['float'], file_write_mode = 'w')    #8 minutes to validate all the 4k csv
 validate_data(test_files_path, expected_columns_train_test, ['float'])
 
 #validate the csv which maps each training csv to its label

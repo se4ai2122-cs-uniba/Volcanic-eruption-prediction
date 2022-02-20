@@ -1,4 +1,9 @@
 stages:
+  data_validation:
+    cmd: python tests/data_validation/data_validation.py
+    deps:
+    - data/processed
+    - data/raw/predict-volcanic-eruptions_dataset
   prepare:
     cmd: python src/prepare.py
     deps:
@@ -32,3 +37,10 @@ stages:
         cache: false
     params:
     - evaluate
+  test:
+    cmd: pytest
+    deps:
+    - app/api.py
+    - src/evaluate.py
+    - src/prepare.py
+    - src/train.py
